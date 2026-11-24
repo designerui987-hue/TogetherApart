@@ -51,3 +51,42 @@
   - [x] Dual-browser Puppeteer visual test (`node test-browser-e2e.mjs`) with zero console errors.
   - [x] Save before and after screenshots.
   - [x] Commit and push branch `phase-2-visual-overhaul` to GitHub.
+
+---
+
+## Phase 2.5: Professional 3D Asset Pipeline
+- [x] Create and checkout git branch `phase-2.5-professional-assets`.
+- [x] Audit incomplete Phase 2 tasks and accurately document status in `VISUAL_UPGRADE_TASKS.md`.
+- [x] Capture Phase 2 baseline screenshots in `screenshots/phase2_baseline/`.
+- [x] Detect and integrate Blender 5.3 headless automation (`C:\Program Files\Blender Foundation\Blender 5.3\blender.exe`).
+- [x] Establish asset directory structure in `packages/client/public/assets/...` and `tools/...`.
+- [x] Author `ASSET_PIPELINE.md`, updated `ASSET_LICENSES.md`, and `packages/client/public/assets/asset-manifest.json`.
+- [x] Build Centralized `AssetManager.ts` (Three.js `GLTFLoader`, `SkeletonUtils.clone()`, caching, in-flight promise deduplication, and procedural fallback models).
+- [x] Automated Character Rigging and Animation Pipeline (`tools/blender/generate_characters.py`):
+  - [x] Original stylized Lumi & Nova chibi models with humanoid armatures and weighted vertex groups.
+  - [x] 14 Named animation actions: `Idle`, `Walk`, `Run`, `JumpStart`, `JumpLoop`, `Fall`, `Land`, `Ability`, `HighFive`, `Wave`, `Hug`, `Dance`, `Celebrate`, `Respawn`.
+  - [x] Master editable sources saved to `tools/blender/sources/` (`lumi.blend`, `nova.blend`).
+  - [x] Production GLBs exported to `packages/client/public/assets/characters/`.
+- [x] Client Skeletal Animation Integration (`CharacterModel.ts`, `PlayerController.ts`, `RemotePlayer.ts`):
+  - [x] Three.js `AnimationMixer` with smooth action crossfading.
+  - [x] Independent skeletons per player via `SkeletonUtils.clone()`.
+  - [x] Seamless procedural fallback if asset loading is interrupted.
+- [x] Automated Modular Environment Library (`tools/blender/generate_environment.py`):
+  - [x] Trees: `fantasy_tree.glb`, `willow_tree.glb`, `flowering_tree.glb`, `sapling.glb`.
+  - [x] Plants & Fungi: `grass_tuft.glb`, `fern.glb`, `daisy.glb`, `lavender.glb`, `fairy_mushroom.glb`.
+  - [x] Rocks & Terrain: `floating_island_base.glb`, `cliff_rock.glb`, `moss_rock.glb`, `pebbles.glb`.
+  - [x] Architecture: `bridge_plank.glb`, `rope_post.glb`, `stone_pillar.glb`, `crystal_pedestal.glb`, `ancient_archway.glb`, `cozy_gazebo.glb`, `magical_lantern.glb`, `heart_gate.glb`.
+  - [x] Master environment source saved to `tools/blender/sources/environment.blend`.
+- [x] Environment Integration in `IslandLevel.ts`:
+  - [x] Modular GLB asset placement along pathways, bridge posts, entrance archway, summit gazebo, and Heart Gate.
+  - [x] Preserved all exact puzzle coordinates, interactable positions, and Rapier 3D colliders.
+- [x] Synchronized Couple Emote System (`types.ts`, `protocol.ts`, `GameRoom.ts`, `NetworkClient.ts`, `GameApp.ts`, `UIManager.ts`, `style.css`):
+  - [x] Synchronized emotes: Wave, High-Five, Hug, Dance, Celebrate.
+  - [x] In-game Glassmorphism Emote Bar with hotkeys `1`-`5`.
+  - [x] Real-time Socket.IO synchronization (`player:emote` & `event:emote`).
+- [x] Comprehensive Verification & Delivery:
+  - [x] Monorepo build check (`npm run build`).
+  - [x] 12-Stage automated multiplayer suite with emote testing (`node test-multiplayer.mjs`).
+  - [x] Dual-browser end-to-end Puppeteer verification with zero console errors (`node test-browser-e2e.mjs`).
+  - [x] Performance stats: 60 FPS in standard browser, draw calls ~35-50, triangle count within budget.
+  - [x] Commit all changes to `phase-2.5-professional-assets`.

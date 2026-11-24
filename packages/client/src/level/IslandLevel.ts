@@ -3,6 +3,7 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import { ABILITIES, PuzzleState, Vector3D } from '@together-apart/shared';
 import { PhysicsWorld } from '../physics/PhysicsWorld';
 import { ParticleSystem } from '../graphics/ParticleSystem';
+import { assetManager } from '../assets/AssetManager';
 
 export class IslandLevel {
   public group: THREE.Group;
@@ -65,6 +66,7 @@ export class IslandLevel {
     this.particles = particles;
 
     this.buildLevelGeometry();
+    this.loadEnvironmentGlbAssets();
   }
 
   private buildLevelGeometry() {
@@ -972,5 +974,92 @@ export class IslandLevel {
       f.mesh.position.y = f.basePos.y + Math.cos(time * 1.4 + f.offset) * 0.6;
       f.mesh.position.z = f.basePos.z + Math.sin(time * 0.7 + f.offset) * 0.8;
     });
+  }
+
+  // ==========================================
+  // MODULAR PRODUCTION GLB ASSETS INTEGRATION
+  // ==========================================
+  private async loadEnvironmentGlbAssets() {
+    try {
+      // 1. Ancient ceremonial entrance archway at Island 1 start
+      const arch = await assetManager.instantiateModel('/assets/environment/architecture/ancient_archway.glb');
+      if (!arch.isFallback && arch.root) {
+        arch.root.position.set(0, 0, 5.0);
+        arch.root.scale.set(0.85, 0.85, 0.85);
+        this.group.add(arch.root);
+      }
+
+      // 2. Cozy summit gazebo at Victory Summit
+      const gazebo = await assetManager.instantiateModel('/assets/environment/architecture/cozy_gazebo.glb');
+      if (!gazebo.isFallback && gazebo.root) {
+        gazebo.root.position.set(0, 4.5, 134.0);
+        this.group.add(gazebo.root);
+      }
+
+      // 3. Heart Gate monumental stone archway at z = 120
+      const gate = await assetManager.instantiateModel('/assets/environment/architecture/heart_gate.glb');
+      if (!gate.isFallback && gate.root) {
+        gate.root.position.set(0, 3.5, 120.0);
+        this.group.add(gate.root);
+      }
+
+      // 4. Stylized trees across the islands
+      const treeConfigs = [
+        { url: '/assets/environment/trees/fantasy_tree.glb', x: -6.5, y: 0.0, z: 8.0, scale: 0.9 },
+        { url: '/assets/environment/trees/flowering_tree.glb', x: 6.8, y: 0.0, z: 10.0, scale: 0.85 },
+        { url: '/assets/environment/trees/willow_tree.glb', x: -7.5, y: 0.5, z: 36.0, scale: 0.95 },
+        { url: '/assets/environment/trees/fantasy_tree.glb', x: 7.2, y: 0.5, z: 38.0, scale: 0.9 },
+        { url: '/assets/environment/trees/flowering_tree.glb', x: -6.0, y: 2.0, z: 68.0, scale: 0.85 },
+        { url: '/assets/environment/trees/sapling.glb', x: 5.5, y: 2.0, z: 88.0, scale: 1.1 },
+        { url: '/assets/environment/trees/willow_tree.glb', x: -8.0, y: 3.5, z: 110.0, scale: 1.0 },
+        { url: '/assets/environment/trees/fantasy_tree.glb', x: 8.0, y: 3.5, z: 110.0, scale: 1.0 },
+      ];
+
+      for (const t of treeConfigs) {
+        const tree = await assetManager.instantiateModel(t.url, 'tree');
+        if (!tree.isFallback && tree.root) {
+          tree.root.position.set(t.x, t.y, t.z);
+          tree.root.scale.set(t.scale, t.scale, t.scale);
+          tree.root.rotation.y = Math.random() * Math.PI * 2;
+          this.group.add(tree.root);
+        }
+      }
+
+      // 5. Magical lanterns along bridge posts and pathways
+      const lanternPositions = [
+        { x: -1.7, y: 1.6, z: 18.0 },
+        { x: 1.7, y: 1.6, z: 18.0 },
+        { x: -1.7, y: 1.6, z: 28.0 },
+        { x: 1.7, y: 1.6, z: 28.0 },
+      ];
+      for (const lp of lanternPositions) {
+        const lantern = await assetManager.instantiateModel('/assets/environment/architecture/magical_lantern.glb');
+        if (!lantern.isFallback && lantern.root) {
+          lantern.root.position.set(lp.x, lp.y, lp.z);
+          lantern.root.scale.set(0.9, 0.9, 0.9);
+          this.group.add(lantern.root);
+        }
+      }
+
+      // 6. Rocks & pebbles along perimeter
+      const rockConfigs = [
+        { url: '/assets/environment/rocks/cliff_rock.glb', x: -5.8, y: 0.0, z: 12.0, scale: 0.7 },
+        { url: '/assets/environment/rocks/moss_rock.glb', x: 5.2, y: 0.0, z: 14.0, scale: 0.8 },
+        { url: '/assets/environment/rocks/pebbles.glb', x: -1.2, y: 0.0, z: 6.0, scale: 1.0 },
+        { url: '/assets/environment/rocks/cliff_rock.glb', x: 6.2, y: 0.5, z: 34.0, scale: 0.85 },
+        { url: '/assets/environment/rocks/moss_rock.glb', x: -5.5, y: 2.0, z: 76.0, scale: 0.9 },
+      ];
+      for (const r of rockConfigs) {
+        const rock = await assetManager.instantiateModel(r.url, 'prop');
+        if (!rock.isFallback && rock.root) {
+          rock.root.position.set(r.x, r.y, r.z);
+          rock.root.scale.set(r.scale, r.scale, r.scale);
+          rock.root.rotation.y = Math.random() * Math.PI * 2;
+          this.group.add(rock.root);
+        }
+      }
+    } catch (err) {
+      console.warn('[IslandLevel] Error loading environment GLB models:', err);
+    }
   }
 }

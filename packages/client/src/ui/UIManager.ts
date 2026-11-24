@@ -1,10 +1,11 @@
-import { CharacterType, RoomState } from '@together-apart/shared';
+import { CharacterType, EmoteType, RoomState } from '@together-apart/shared';
 import { soundSynth } from '../audio/SoundSynth';
 import { PerformanceStats, QualityPreset } from '../graphics/SceneManager';
 
 export type UIScreen = 'MAIN_MENU' | 'LOBBY' | 'IN_GAME';
 
 export class UIManager {
+  public onTriggerEmote?: (emote: EmoteType) => void;
   // Screens
   private screenMainMenu = document.getElementById('main-menu')!;
   private screenLobby = document.getElementById('lobby-screen')!;
@@ -188,6 +189,30 @@ export class UIManager {
       this.modalVictory.classList.add('hidden');
       this.showScreen('MAIN_MENU');
     };
+
+    // Couple Emotes
+    document.querySelectorAll('.emote-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const emote = btn.getAttribute('data-emote') as EmoteType;
+        if (emote && this.onTriggerEmote) {
+          this.onTriggerEmote(emote);
+        }
+      });
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (this.screenInGame.classList.contains('hidden')) return;
+      const keyMap: Record<string, EmoteType> = {
+        '1': 'wave',
+        '2': 'highfive',
+        '3': 'hug',
+        '4': 'dance',
+        '5': 'celebrate',
+      };
+      if (keyMap[e.key] && this.onTriggerEmote) {
+        this.onTriggerEmote(keyMap[e.key]);
+      }
+    });
   }
 
   public showScreen(screen: UIScreen) {

@@ -1,0 +1,69 @@
+{
+  "$schema": "./schema.json",
+  "version": "1.0.0",
+  "title": "Together Apart Asset Manifest",
+  "description": "Registry of optimized 3D models, textures, animations, and audio",
+  "characters": {
+    "lumi": {
+      "id": "char-lumi",
+      "name": "Lumi — The Light Weaver",
+      "path": "/assets/characters/lumi/lumi.glb",
+      "blendSource": "tools/blender/sources/lumi.blend",
+      "category": "character",
+      "targetTriangles": 12000,
+      "animations": [
+        "Idle", "Walk", "Run", "JumpStart", "JumpLoop", "Fall", "Land",
+        "Ability", "HighFive", "Wave", "Hug", "Dance", "Celebrate", "Respawn"
+      ]
+    },
+    "nova": {
+      "id": "char-nova",
+      "name": "Nova — The Kinetic Shaper",
+      "path": "/assets/characters/nova/nova.glb",
+      "blendSource": "tools/blender/sources/nova.blend",
+      "category": "character",
+      "targetTriangles": 12000,
+      "animations": [
+        "Idle", "Walk", "Run", "JumpStart", "JumpLoop", "Fall", "Land",
+        "Ability", "HighFive", "Wave", "Hug", "Dance", "Celebrate", "Respawn"
+      ]
+    }
+  },
+  "environment": {
+    "trees": {
+      "fantasy_tree": { "path": "/assets/environment/trees/fantasy_tree.glb", "triangles": 1200 },
+      "willow_tree": { "path": "/assets/environment/trees/willow_tree.glb", "triangles": 1400 },
+      "flowering_tree": { "path": "/assets/environment/trees/flowering_tree.glb", "triangles": 1100 },
+      "sapling": { "path": "/assets/environment/trees/sapling.glb", "triangles": 400 }
+    },
+    "plants": {
+      "grass_tuft": { "path": "/assets/environment/plants/grass_tuft.glb", "triangles": 120 },
+      "fern": { "path": "/assets/environment/plants/fern.glb", "triangles": 180 },
+      "daisy": { "path": "/assets/environment/plants/daisy.glb", "triangles": 160 },
+      "lavender": { "path": "/assets/environment/plants/lavender.glb", "triangles": 220 }
+    },
+    "mushrooms": {
+      "fairy_mushroom": { "path": "/assets/environment/mushrooms/fairy_mushroom.glb", "triangles": 240 }
+    },
+    "rocks": {
+      "cliff_rock": { "path": "/assets/environment/rocks/cliff_rock.glb", "triangles": 450 },
+      "moss_rock": { "path": "/assets/environment/rocks/moss_rock.glb", "triangles": 380 },
+      "pebbles": { "path": "/assets/environment/rocks/pebbles.glb", "triangles": 90 }
+    },
+    "islands": {
+      "floating_island_base": { "path": "/assets/environment/islands/floating_island_base.glb", "triangles": 3200 }
+    },
+    "bridges": {
+      "bridge_plank": { "path": "/assets/environment/bridges/bridge_plank.glb", "triangles": 80 },
+      "rope_post": { "path": "/assets/environment/bridges/rope_post.glb", "triangles": 160 }
+    },
+    "architecture": {
+      "stone_pillar": { "path": "/assets/environment/architecture/stone_pillar.glb", "triangles": 480 },
+      "crystal_pedestal": { "path": "/assets/environment/architecture/crystal_pedestal.glb", "triangles": 620 },
+      "ancient_archway": { "path": "/assets/environment/architecture/ancient_archway.glb", "triangles": 1800 },
+      "cozy_gazebo": { "path": "/assets/environment/architecture/cozy_gazebo.glb", "triangles": 2100 },
+      "magical_lantern": { "path": "/assets/environment/architecture/magical_lantern.glb", "triangles": 340 },
+      "heart_gate": { "path": "/assets/environment/architecture/heart_gate.glb", "triangles": 2800 }
+    }
+  }
+}

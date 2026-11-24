@@ -148,6 +148,11 @@ async function testDualBrowserGameplay() {
     const canvas2Exists = await page2.$eval('#game-container canvas', (el) => !!el);
     console.log(`WebGL Canvas Check: Page 1 = ${canvas1Exists}, Page 2 = ${canvas2Exists}`);
 
+    // Test triggering an emote via UI
+    console.log('Testing couple emote interaction...');
+    await page1.$eval('.emote-btn[data-emote="dance"]', (el) => el.click());
+    await new Promise((r) => setTimeout(r, 800));
+
     // Capture in-game screenshots for both players
     await page1.screenshot({ path: path.join(screenshotsDir, 'player1_upgraded.png') });
     await page2.screenshot({ path: path.join(screenshotsDir, 'player2_upgraded.png') });

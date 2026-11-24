@@ -123,6 +123,14 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Emotes
+  socket.on('player:emote', ({ emote }) => {
+    const room = roomManager.findRoomBySocketId(socket.id);
+    if (room && room.inGame) {
+      room.handleEmote(socket.id, emote);
+    }
+  });
+
   // Checkpoint reached
   socket.on('player:checkpoint', ({ checkpointId }) => {
     const room = roomManager.findRoomBySocketId(socket.id);

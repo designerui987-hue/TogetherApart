@@ -142,6 +142,17 @@ export class GameApp {
     this.ui.onReducedMotionChange = (enabled) => {
       this.cameraController.reducedMotion = enabled;
     };
+
+    this.ui.onTriggerEmote = (emote) => {
+      if (this.gameMode === 'online') {
+        this.network.sendEmote(emote);
+        if (this.player1) this.player1.triggerEmote(emote);
+      } else if (this.gameMode === 'local') {
+        if (this.player1) this.player1.triggerEmote(emote);
+        if (this.player2) this.player2.triggerEmote(emote);
+        if (this.player1) this.particles.emitHearts(this.player1.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 8);
+      }
+    };
   }
 
   private setupNetworkHandlers() {
@@ -183,6 +194,14 @@ export class GameApp {
     this.network.onHighFiveEvent = (data) => {
       soundSynth.playHighFive();
       this.particles.emitHearts(new THREE.Vector3(data.position.x, data.position.y, data.position.z), 18);
+    };
+
+    this.network.onEmoteEvent = (data) => {
+      if (data.playerId !== this.network.myPlayerId && this.remotePlayer) {
+        this.remotePlayer.triggerEmote(data.emote);
+        this.particles.emitHearts(this.remotePlayer.position.clone().add(new THREE.Vector3(0, 1.2, 0)), 12);
+        this.ui.showToast(`Partner used emote: ${data.emote.toUpperCase()}!`);
+      }
     };
 
     this.network.onCheckpointEvent = (data) => {

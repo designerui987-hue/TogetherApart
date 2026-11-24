@@ -1,34 +1,59 @@
-# Together Apart — Asset & License Documentation
+# Together Apart — Asset Licenses & Provenance Documentation
 
-## 1. Overview
-Together Apart is built entirely using **100% original procedural geometry, custom Three.js PBR shaders, and the native HTML5 Web Audio API**. No external copyrighted meshes, textures, proprietary sound libraries, or commercial game packages were copied or imported.
-
----
-
-## 2. Asset Breakdown & Attribution
-
-| Asset Category | Implementation Method | License / Origin |
-|---|---|---|
-| **Lumi Character Model** | Custom procedural Three.js hierarchy (Capsules, Spheres, Extruded wings, Bézier curves) | Original (MIT License) |
-| **Nova Character Model** | Custom procedural Three.js hierarchy (Torso, Elven ears, Winged crest, Gauntlets, Gyroscopes) | Original (MIT License) |
-| **Character Animations** | Procedural bone math & secondary spring/wave physics (bouncing hair, wing flutter, scarf wave) | Original (MIT License) |
-| **Island Terrain & Strata** | Procedural multi-tier sedimentary cones & organic overhanging grass slabs | Original (MIT License) |
-| **Vegetation & Flora** | Instanced low-poly wildflowers, cloud-canopy trees & glowing fairy mushrooms | Original (MIT License) |
-| **Waterfalls & Mist** | Multi-layered UV scrolling procedural shaders & plunge mist particle emitters | Original (MIT License) |
-| **Sky & Atmosphere** | Custom GLSL radial gradient hemisphere sky dome & procedural layered clouds | Original (MIT License) |
-| **Sound Effects & Music** | Generative HTML5 Web Audio API synthesizer (oscillators, noise bursts, biquad filter sweeps) | Original (MIT License) |
-| **UI Fonts** | Outfit & Quicksand (Google Fonts) | SIL Open Font License (OFL) |
-| **Icons & Emojis** | Standard UTF-8 Unicode glyphs & procedural CSS icons | Universal / Public Domain |
+All assets utilized in **Together Apart** are either 100% original procedural/authored creations designed specifically for this project or derived from permissive open-source frameworks.
 
 ---
 
-## 3. Third-Party Dependencies (Open Source)
+## 1. Original 3D Character Models & Animations
 
-| Package | Version | Purpose | License |
-|---|---|---|---|
-| `three` | `^0.164.1` | 3D WebGL rendering engine & post-processing | MIT |
-| `@dimforge/rapier3d-compat` | `^0.13.1` | 3D physics simulation & character collisions | Apache-2.0 |
-| `socket.io` / `socket.io-client` | `^4.7.5` | Real-time WebSocket multiplayer networking | MIT |
-| `express` | `^4.19.2` | HTTP backend & static asset serving | MIT |
-| `vite` | `^5.2.10` | Frontend bundler & development server | MIT |
-| `typescript` | `^5.4.5` | Type-safe JavaScript compiler | Apache-2.0 |
+- **Lumi (The Light Weaver)**:
+  - **Source File**: `tools/blender/sources/lumi.blend`
+  - **Exported Asset**: `packages/client/public/assets/characters/lumi/lumi.glb`
+  - **Author**: Together Apart Development Team
+  - **License**: MIT / Creative Commons Zero (CC0 1.0 Universal)
+  - **Description**: Original stylized chibi fantasy character featuring coral-pink hair, layered fairy dress, translucent flutter wings, and flowing scarf. Generated via custom Blender Python scripts with rigged armature and 14 animation actions.
+
+- **Nova (The Kinetic Shaper)**:
+  - **Source File**: `tools/blender/sources/nova.blend`
+  - **Exported Asset**: `packages/client/public/assets/characters/nova/nova.glb`
+  - **Author**: Together Apart Development Team
+  - **License**: MIT / Creative Commons Zero (CC0 1.0 Universal)
+  - **Description**: Original stylized chibi fantasy character featuring turquoise hair crest, winged golden helmet, adventurer tunic, oversized kinetic gauntlets, and orbiting crystal relics. Generated via custom Blender Python scripts with rigged armature and 14 animation actions.
+
+---
+
+## 2. Original Environment & Architectural Assets
+
+- **Trees & Foliage**:
+  - `fantasy_tree.glb`, `willow_tree.glb`, `flowering_tree.glb`, `sapling.glb`, `grass_tuft.glb`, `fern.glb`, `daisy.glb`, `lavender.glb`, `fairy_mushroom.glb`
+  - **Source File**: `tools/blender/sources/environment.blend`
+  - **Author**: Together Apart Development Team
+  - **License**: MIT / CC0 1.0 Universal
+
+- **Terrain & Architecture**:
+  - `floating_island_base.glb`, `cliff_rock.glb`, `moss_rock.glb`, `pebbles.glb`, `bridge_plank.glb`, `rope_post.glb`, `stone_pillar.glb`, `crystal_pedestal.glb`, `ancient_archway.glb`, `cozy_gazebo.glb`, `magical_lantern.glb`, `heart_gate.glb`
+  - **Source File**: `tools/blender/sources/environment.blend`
+  - **Author**: Together Apart Development Team
+  - **License**: MIT / CC0 1.0 Universal
+
+---
+
+## 3. Procedural Audio Synthesizer
+
+- **Sound Effects & Ambient Music**:
+  - **Engine**: Native HTML5 Web Audio API (`SoundSynth.ts`)
+  - **Author**: Together Apart Development Team
+  - **License**: MIT
+  - **Description**: 100% synthetically generated audio using mathematical oscillators, noise generators, envelope filters, and biquad filter nodes. No external audio recordings, samples, or MP3/WAV files required.
+
+---
+
+## 4. Software Dependencies & Libraries
+
+| Library | Version | License | Usage |
+| :--- | :--- | :--- | :--- |
+| **Three.js** | `^0.160.0` | MIT | WebGL 3D Rendering Engine & Post-Processing |
+| **@dimforge/rapier3d-compat** | `^0.13.0` | Apache-2.0 | Deterministic 3D Physics & Collision Simulation |
+| **Socket.IO** | `^4.7.2` | MIT | Real-time WebSocket Client & Server |
+| **Express** | `^4.18.2` | MIT | HTTP Server & Static Asset Delivery |
+| **Blender** | `5.3.0` | GPL-3.0 | Asset Generation & Export Pipeline Tooling |
