@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CharacterType, TransformState } from '@together-apart/shared';
+import { CharacterType, EmoteType, TransformState } from '@together-apart/shared';
 import { CharacterModel } from './CharacterModel';
 
 export class RemotePlayer {
@@ -39,5 +39,15 @@ export class RemotePlayer {
     this.model.group.quaternion.slerp(this.targetRotation, 1 - Math.exp(-18 * dt));
 
     this.model.animate(performance.now() * 0.001, this.isMoving, this.isGrounded, dt);
+  }
+
+  public triggerEmote(emote: EmoteType) {
+    switch (emote) {
+      case 'wave': this.model.triggerWave(); break;
+      case 'highfive': this.model.triggerHighFive(); break;
+      case 'hug': this.model.triggerHug(); break;
+      case 'dance': this.model.triggerDance(); break;
+      case 'celebrate': this.model.celebrate(); break;
+    }
   }
 }

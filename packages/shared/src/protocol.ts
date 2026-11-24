@@ -1,4 +1,4 @@
-import { CharacterType, PlayerState, PuzzleState, RoomPlayer, RoomState, TransformState, Vector3D } from './types';
+import { CharacterType, EmoteType, PlayerState, PuzzleState, RoomPlayer, RoomState, TransformState, Vector3D } from './types';
 
 export interface ClientToServerEvents {
   'room:create': (data: { playerName: string; character: CharacterType }, callback: (res: { success: boolean; room?: RoomState; error?: string }) => void) => void;
@@ -11,6 +11,7 @@ export interface ClientToServerEvents {
   'player:update': (data: { transform: TransformState; isGrounded: boolean; isMoving: boolean }) => void;
   'player:ability': (data: { abilityType: 'platform' | 'pulse'; position: Vector3D; targetId?: string }) => void;
   'player:interact': (data: { action: 'highfive' | 'switch' | 'lever'; targetId?: string }) => void;
+  'player:emote': (data: { emote: EmoteType }) => void;
   'player:checkpoint': (data: { checkpointId: number }) => void;
   'player:respawn': (data: { checkpointId: number }) => void;
 
@@ -29,6 +30,7 @@ export interface ServerToClientEvents {
   'puzzle:updated': (puzzleState: PuzzleState) => void;
   'event:ability': (data: { playerId: string; character: CharacterType; abilityType: 'platform' | 'pulse'; position: Vector3D }) => void;
   'event:highfive': (data: { player1Id: string; player2Id: string; position: Vector3D }) => void;
+  'event:emote': (data: { playerId: string; emote: EmoteType }) => void;
   'event:checkpoint': (data: { checkpointId: number; name: string }) => void;
   'event:level_complete': () => void;
   'event:message': (data: { text: string; kind?: 'info' | 'encouragement' | 'success' }) => void;

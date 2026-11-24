@@ -1,4 +1,5 @@
 export type CharacterType = 'lumi' | 'nova';
+export type EmoteType = 'wave' | 'highfive' | 'hug' | 'dance' | 'celebrate';
 
 export interface Vector3D {
   x: number;

@@ -2,6 +2,7 @@ import { io, Socket } from 'socket.io-client';
 import {
   CharacterType,
   ClientToServerEvents,
+  EmoteType,
   PlayerState,
   PuzzleState,
   RoomPlayer,
@@ -25,6 +26,7 @@ export class NetworkClient {
   public onPuzzleUpdated?: (puzzle: PuzzleState) => void;
   public onAbilityEvent?: (data: { playerId: string; character: CharacterType; abilityType: 'platform' | 'pulse'; position: Vector3D }) => void;
   public onHighFiveEvent?: (data: { position: Vector3D }) => void;
+  public onEmoteEvent?: (data: { playerId: string; emote: EmoteType }) => void;
   public onCheckpointEvent?: (data: { checkpointId: number; name: string }) => void;
   public onLevelComplete?: () => void;
   public onMessage?: (data: { text: string; kind?: 'info' | 'encouragement' | 'success' }) => void;
@@ -78,6 +80,10 @@ export class NetworkClient {
 
     this.socket.on('event:highfive', (data) => {
       if (this.onHighFiveEvent) this.onHighFiveEvent(data);
+    });
+
+    this.socket.on('event:emote', (data) => {
+      if (this.onEmoteEvent) this.onEmoteEvent(data);
     });
 
     this.socket.on('event:checkpoint', (data) => {
@@ -137,6 +143,10 @@ export class NetworkClient {
 
   public sendInteract(action: 'highfive' | 'switch' | 'lever', targetId?: string) {
     this.socket.emit('player:interact', { action, targetId });
+  }
+
+  public sendEmote(emote: EmoteType) {
+    this.socket.emit('player:emote', { emote });
   }
 
   public sendRespawn(checkpointId: number) {

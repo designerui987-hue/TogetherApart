@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import RAPIER from '@dimforge/rapier3d-compat';
-import { ABILITIES, CharacterType, PHYSICS, Vector3D } from '@together-apart/shared';
+import { ABILITIES, CharacterType, EmoteType, PHYSICS, Vector3D } from '@together-apart/shared';
 import { PhysicsWorld } from '../physics/PhysicsWorld';
 import { CharacterModel } from './CharacterModel';
 import { soundSynth } from '../audio/SoundSynth';
@@ -205,6 +205,16 @@ export class PlayerController {
       if (onAbilityTriggered) {
         onAbilityTriggered('pulse', { x: this.position.x, y: this.position.y, z: this.position.z });
       }
+    }
+  }
+
+  public triggerEmote(emote: EmoteType) {
+    switch (emote) {
+      case 'wave': this.model.triggerWave(); break;
+      case 'highfive': this.model.triggerHighFive(); break;
+      case 'hug': this.model.triggerHug(); break;
+      case 'dance': this.model.triggerDance(); break;
+      case 'celebrate': this.model.celebrate(); break;
     }
   }
 

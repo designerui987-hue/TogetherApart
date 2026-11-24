@@ -140,6 +140,17 @@ async function runMultiplayerTest() {
   client1.emit('player:interact', { action: 'highfive' });
   await highFivePromise;
 
+  // 10b. Test Synchronized Emotes (Phase 2.5)
+  console.log('\n--- Testing Couple Mechanic: Synchronized Emote ---');
+  const emotePromise = new Promise((resolve) => {
+    client2.once('event:emote', (data) => {
+      console.log(`[Emote]: Emote event received on partner: ${data.emote} from player ${data.playerId}`);
+      resolve(data);
+    });
+  });
+  client1.emit('player:emote', { emote: 'dance' });
+  await emotePromise;
+
   // 11. Test Challenge 3: Heart Gate Simultaneous Synchronization
   console.log('\n--- Testing Challenge 3: Heart Gate ---');
   const gatePromise = new Promise((resolve) => {

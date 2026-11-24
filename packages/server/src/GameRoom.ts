@@ -4,6 +4,7 @@ import {
   CHECKPOINTS,
   CharacterType,
   ClientToServerEvents,
+  EmoteType,
   PlayerState,
   PuzzleState,
   RoomPlayer,
@@ -243,6 +244,10 @@ export class GameRoom {
 
   public handlePressurePlate(active: boolean) {
     this.puzzleEngine.setPressurePlate(active);
+  }
+
+  public handleEmote(socketId: string, emote: EmoteType) {
+    this.io.to(this.code).emit('event:emote', { playerId: socketId, emote });
   }
 
   public handleRespawn(socketId: string, checkpointId: number) {

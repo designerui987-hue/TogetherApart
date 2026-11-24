@@ -1,13 +1,21 @@
 import * as THREE from 'three';
 import { CharacterType } from '@together-apart/shared';
+import { assetManager } from '../assets/AssetManager';
 
-export type CharacterAction = 'idle' | 'walk' | 'run' | 'jump_ascend' | 'jump_fall' | 'land' | 'ability' | 'highfive' | 'celebrate';
+export type CharacterAction = 'idle' | 'walk' | 'run' | 'jump_ascend' | 'jump_fall' | 'land' | 'ability' | 'highfive' | 'celebrate' | 'wave' | 'hug' | 'dance' | 'respawn';
 
 export class CharacterModel {
   public group: THREE.Group;
   public characterType: CharacterType;
 
-  // Root animated transforms
+  // Skinned GLB model & Animation Mixer
+  public glbModel: THREE.Group | null = null;
+  public mixer: THREE.AnimationMixer | null = null;
+  private actions: Map<string, THREE.AnimationAction> = new Map();
+  private currentClipName: string = '';
+  public proceduralRoot: THREE.Group;
+
+  // Root animated transforms (procedural fallback)
   public rootBone: THREE.Group;
   public hips: THREE.Group;
   public torso: THREE.Group;
@@ -53,12 +61,18 @@ export class CharacterModel {
   private abilityTimer: number = 0;
   private highfiveTimer: number = 0;
   private celebrateTimer: number = 0;
+  private waveTimer: number = 0;
+  private hugTimer: number = 0;
+  private danceTimer: number = 0;
+  private respawnTimer: number = 0;
 
   constructor(type: CharacterType) {
     this.characterType = type;
     this.group = new THREE.Group();
+    this.proceduralRoot = new THREE.Group();
+    this.group.add(this.proceduralRoot);
 
-    // Build hierarchy
+    // Build hierarchy for procedural fallback
     this.rootBone = new THREE.Group();
     this.hips = new THREE.Group();
     this.torso = new THREE.Group();
@@ -85,10 +99,54 @@ export class CharacterModel {
     } else {
       this.buildNovaVisuals();
     }
+
+    // Load professional skinned GLB model asynchronously
+    this.loadGlbModel();
+  }
+
+  private async loadGlbModel() {
+    try {
+      const url = `/assets/characters/${this.characterType}/${this.characterType}.glb`;
+      const instance = await assetManager.instantiateModel(url, 'character');
+      if (!instance.isFallback && instance.root) {
+        this.glbModel = instance.root;
+        this.glbModel.position.set(0, 0, 0);
+        this.group.add(this.glbModel);
+        // Hide procedural fallback since professional GLB is active
+        this.proceduralRoot.visible = false;
+
+        this.mixer = new THREE.AnimationMixer(this.glbModel);
+        for (const clip of instance.animations) {
+          const action = this.mixer.clipAction(clip);
+          this.actions.set(clip.name, action);
+        }
+
+        const idleAction = this.actions.get('Idle');
+        if (idleAction) {
+          idleAction.play();
+          this.currentClipName = 'Idle';
+        }
+      }
+    } catch (err) {
+      console.warn(`[CharacterModel] Failed to load GLB for ${this.characterType}, remaining on procedural mesh.`, err);
+    }
+  }
+
+  private playAction(name: string, fadeDuration: number = 0.2) {
+    if (!this.mixer || this.currentClipName === name) return;
+    const nextAction = this.actions.get(name);
+    const prevAction = this.actions.get(this.currentClipName);
+    if (nextAction) {
+      if (prevAction) {
+        prevAction.crossFadeTo(nextAction, fadeDuration, true);
+      }
+      nextAction.reset().play();
+      this.currentClipName = name;
+    }
   }
 
   private assembleRig() {
-    this.group.add(this.rootBone);
+    this.proceduralRoot.add(this.rootBone);
     this.rootBone.position.y = 0.55;
 
     this.rootBone.add(this.hips);
@@ -597,7 +655,62 @@ export class CharacterModel {
     speedRatio: number = 0, // 0 = idle, 1 = walk, 1.5 = sprint
     turnRate: number = 0    // Angular velocity for banking
   ) {
-    // 1. Procedural Eye Blinking (Every 3.8 - 4.5 seconds)
+    // 1. Emote & Action Timers
+    if (this.landingTimer > 0) this.landingTimer -= dt;
+    if (this.celebrateTimer > 0) this.celebrateTimer -= dt;
+    if (this.highfiveTimer > 0) this.highfiveTimer -= dt;
+    if (this.abilityTimer > 0) this.abilityTimer -= dt;
+    if (this.waveTimer > 0) this.waveTimer -= dt;
+    if (this.hugTimer > 0) this.hugTimer -= dt;
+    if (this.danceTimer > 0) this.danceTimer -= dt;
+    if (this.respawnTimer > 0) this.respawnTimer -= dt;
+
+    // If professional Skinned GLB model & Mixer is active
+    if (this.mixer) {
+      let targetAnim = 'Idle';
+      if (this.celebrateTimer > 0) {
+        targetAnim = 'Celebrate';
+      } else if (this.highfiveTimer > 0) {
+        targetAnim = 'HighFive';
+      } else if (this.waveTimer > 0) {
+        targetAnim = 'Wave';
+      } else if (this.hugTimer > 0) {
+        targetAnim = 'Hug';
+      } else if (this.danceTimer > 0) {
+        targetAnim = 'Dance';
+      } else if (this.respawnTimer > 0) {
+        targetAnim = 'Respawn';
+      } else if (this.abilityTimer > 0) {
+        targetAnim = 'Ability';
+      } else if (this.landingTimer > 0) {
+        targetAnim = 'Land';
+      } else if (!isGrounded) {
+        targetAnim = 'JumpLoop';
+      } else if (isMoving) {
+        targetAnim = (speedRatio > 1.1) ? 'Run' : 'Walk';
+      }
+
+      this.currentAction = targetAnim.toLowerCase() as CharacterAction;
+      this.playAction(targetAnim);
+      this.mixer.update(dt);
+
+      if (this.glbModel) {
+        // Lean into turns
+        this.glbModel.rotation.z = THREE.MathUtils.lerp(this.glbModel.rotation.z, -turnRate * 0.12, dt * 10);
+        // Landing squash
+        if (this.landingTimer > 0) {
+          const t = this.landingTimer / 0.22;
+          const squash = 1.0 - Math.sin(t * Math.PI) * 0.15;
+          const stretch = 1.0 + Math.sin(t * Math.PI) * 0.10;
+          this.glbModel.scale.set(stretch, squash, stretch);
+        } else {
+          this.glbModel.scale.lerp(new THREE.Vector3(1, 1, 1), dt * 12);
+        }
+      }
+      return;
+    }
+
+    // 2. Fallback Procedural Eye Blinking (Every 3.8 - 4.5 seconds)
     this.blinkTimer += dt;
     if (!this.isBlinking && this.blinkTimer > 3.8 + Math.sin(time) * 0.7) {
       this.isBlinking = true;
@@ -800,7 +913,23 @@ export class CharacterModel {
   }
 
   public triggerHighFive() {
-    this.highfiveTimer = 0.65;
+    this.highfiveTimer = 0.85;
+  }
+
+  public triggerWave() {
+    this.waveTimer = 1.2;
+  }
+
+  public triggerHug() {
+    this.hugTimer = 1.5;
+  }
+
+  public triggerDance() {
+    this.danceTimer = 2.0;
+  }
+
+  public triggerRespawn() {
+    this.respawnTimer = 1.4;
   }
 
   public celebrate() {

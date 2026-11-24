@@ -6,6 +6,41 @@ Inspired by the teamwork philosophy of *It Takes Two*, two players must communic
 
 ---
 
+## 🎨 Phase 2.5: Professional 3D Asset Pipeline Highlights
+
+- **Blender 5.3 Automated Tooling & Editable Source Models**:
+  - Headless Blender Python (`bpy`) asset generation scripts in `tools/blender/`:
+    - `generate_characters.py`: Builds humanoid armatures, skinned meshes, and 14 keyframed animation actions for Lumi and Nova.
+    - `generate_environment.py`: Builds modular trees, plants, mushrooms, rocks, and architecture.
+  - Master `.blend` source files preserved in `tools/blender/sources/` (`lumi.blend`, `nova.blend`, `environment.blend`).
+  - Production `.glb` assets exported to `packages/client/public/assets/` and tracked in `packages/client/public/assets/asset-manifest.json`.
+- **Skinned Character Models with 14 Animation Actions**:
+  - **Lumi (The Light Weaver)** & **Nova (The Kinetic Shaper)**:
+    - Fully rigged humanoid armatures with bone hierarchies and weighted vertex groups.
+    - PBR materials with calibrated roughness, metallicity, and emissive starlight/cyan energy vents.
+    - 14 Named animation clips embedded in GLB: `Idle`, `Walk`, `Run`, `JumpStart`, `JumpLoop`, `Fall`, `Land`, `Ability`, `HighFive`, `Wave`, `Hug`, `Dance`, `Celebrate`, `Respawn`.
+    - Integrated with Three.js `AnimationMixer` featuring smooth crossfading transitions and turning bank lean.
+- **Centralized Asset Loader (`AssetManager.ts`)**:
+  - Asynchronous local loading via Three.js `GLTFLoader`.
+  - Safe skinned-mesh cloning using `SkeletonUtils.clone()` so local and remote players have independent bone matrices and mixers.
+  - In-flight promise deduplication and in-memory caching.
+  - Procedural fallback system: if any model is loading or unavailable, an equivalent procedural model renders immediately with zero frame drops or missing geometry.
+- **Modular Environment Asset Library**:
+  - Trees: Fantasy Tree, Willow Tree, Flowering Tree, Sapling.
+  - Foliage & Fungi: Grass Tuft, Fern, Daisy, Lavender, Bioluminescent Fairy Mushroom.
+  - Terrain & Geology: Floating Island Base, Stratified Cliff Rock, Moss Rock, River Pebbles.
+  - Architecture: Wooden Bridge Plank, Rope Post, Ancient Stone Pillar, Crystal Pedestal, Ceremonial Archway, Cozy Gazebo, Magical Lantern, Heart Gate.
+- **Couple-Friendly Synchronized Emote System**:
+  - In-game Glassmorphism Emote Bar with responsive hotkeys:
+    - 👋 **Wave** (<kbd>1</kbd>)
+    - 🙏 **High-Five** (<kbd>2</kbd>)
+    - 🤗 **Hug** (<kbd>3</kbd>)
+    - 💃 **Dance Together** (<kbd>4</kbd>)
+    - 🌟 **Celebrate** (<kbd>5</kbd>)
+  - Real-time network synchronization over Socket.IO (`player:emote` & `event:emote`) with heart bursts and toasts.
+
+---
+
 ## 🎨 Phase 2: Premium Visual Overhaul Highlights
 
 - **Art Direction & Atmosphere**:
