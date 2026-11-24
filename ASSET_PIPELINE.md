@@ -134,3 +134,46 @@ The client interacts with 3D assets exclusively through a singleton `AssetManage
 | **Rocks & Clifffaces**| 200 – 800 | 512 × 512 | Organic low-poly with tri-planar shading |
 | **Puzzle Props** | 500 – 2,500 | 512 × 512 | Emissive highlights, moving parts |
 | **Total Scene Budget**| $\le 35,000$ tris | $\le 60\text{ MB}$ VRAM | $60\text{ FPS}$ on integrated/low-tier GPUs |
+
+---
+
+## 6. Phase 2.6: Concept-Accurate Master Production Models
+
+### 6.1 Specifications & Adherence
+In Phase 2.6, Lumi and Nova were recreated from scratch in Blender 5.3 strictly matching the official concept sheets (`art-references/characters/lumi-concept.png` and `nova-concept.png`):
+
+- **Lumi (The Light Weaver)**:
+  - Proportions: 3.2 heads tall chibi adventure silhouette.
+  - Sculpted stylized anatomy, soft cheeks, warm amber gradient eyes with highlights and dark upper eyelashes.
+  - Coral pink wavy multi-layered hair with floral hair ornament and dangling star charm.
+  - Cream and coral double-layered dress with scallop petal hems, gold star embroidery, and golden waist brooch.
+  - Translucent 4-wing butterfly system with emissive starlight veins.
+  - Flowing golden silk scarf draped over shoulders with star patterns and tapered tassels.
+  - Brown adventurer boots with star-shaped buckles.
+  - Source: `tools/blender/sources/lumi_reference_master.blend`
+  - Export: `packages/client/public/assets/characters/lumi/lumi_v2.glb` (50 meshes, 10 materials, 14 actions, 7 shape keys).
+
+- **Nova (The Kinetic Shaper)**:
+  - Proportions: 3.1 heads tall chibi inventor silhouette.
+  - Sculpted stylized anatomy, confident electric blue eyes, stylized elf ears with brass cuff accents.
+  - Swept turquoise crest hair with dynamic bangs, side lock, and brass mono-goggle with glowing cyan kinetic lens.
+  - High cowl scarf collar, deep navy adventurer coat with gold trim, geometric emblem, and split coat tails.
+  - Sturdy utility belt with brass gear charm and stitched tool pouch.
+  - Oversized mechanical kinetic gauntlets with segmented fingers and central glowing cyan kinetic emitter core.
+  - Heavy brown adventurer boots with brass toe guards and ankle buckles.
+  - Source: `tools/blender/sources/nova_reference_master.blend`
+  - Export: `packages/client/public/assets/characters/nova/nova_v2.glb` (52 meshes, 11 materials, 14 actions, 7 shape keys).
+
+### 6.2 Facial Shape Keys (Morph Targets)
+Both models feature high-fidelity head mesh shape keys for expressive gameplay and cinematic cutscenes:
+1. `Smile`: Relaxed, warm smile.
+2. `Joyful` (Lumi) / `Confident` (Nova): Broad expressive happy mouth and uplifted cheeks.
+3. `Focused`: Determined brow tilt and concentrated mouth line.
+4. `Playful`: Asymmetric wink-smile.
+5. `BlinkLeft` & `BlinkRight`: Independent natural eye blinks.
+6. `MouthOpen`: Vocalization and astonishment.
+
+### 6.3 3D Character Showcase & Preview Tools
+- **In-Game Showcase Modal**: Accessible via the "✨ Character Showcase (3D Preview)" button on the main menu. Includes 3-point studio lighting, 360° turntable, wireframe toggle, 14 animation actions, morph target expression sliders, live triangle/mesh statistics, and a 2D concept art comparison split-view drawer.
+- **Standalone Preview**: Accessible at `/preview.html` with full Three.js orbit controls.
+- **Verification Sheets**: Side-by-side high-resolution comparison sheets rendered at 2367x1400 in `screenshots/phase2.6/` juxtaposing official concept sheets with 3D master turnarounds.

@@ -1,6 +1,7 @@
 import { CharacterType, EmoteType, RoomState } from '@together-apart/shared';
 import { soundSynth } from '../audio/SoundSynth';
 import { PerformanceStats, QualityPreset } from '../graphics/SceneManager';
+import { CharacterShowcase, ShowcaseStats } from '../graphics/CharacterShowcase';
 
 export type UIScreen = 'MAIN_MENU' | 'LOBBY' | 'IN_GAME';
 
@@ -17,6 +18,7 @@ export class UIManager {
   private modalHowToPlay = document.getElementById('how-to-play-modal')!;
   private modalSettings = document.getElementById('settings-modal')!;
   private modalVictory = document.getElementById('victory-modal')!;
+  private modalShowcase = document.getElementById('showcase-modal')!;
 
   // Performance Overlay
   private perfOverlay = document.getElementById('perf-overlay')!;
@@ -24,6 +26,10 @@ export class UIManager {
   private perfMs = document.getElementById('perf-ms')!;
   private perfCalls = document.getElementById('perf-calls')!;
   private perfTris = document.getElementById('perf-tris')!;
+
+  // Showcase
+  private showcase: CharacterShowcase | null = null;
+  private hudModelPill = document.getElementById('hud-model-pill');
 
   // Toast & Prompt
   private toastElement = document.getElementById('hud-toast')!;
@@ -91,6 +97,18 @@ export class UIManager {
     document.getElementById('btn-menu-how-to-play')!.onclick = () => {
       this.modalHowToPlay.classList.remove('hidden');
     };
+    const btnMenuShowcase = document.getElementById('btn-menu-showcase');
+    if (btnMenuShowcase) {
+      btnMenuShowcase.onclick = () => {
+        this.openCharacterShowcase();
+      };
+    }
+    const btnCloseShowcase = document.getElementById('btn-showcase-close');
+    if (btnCloseShowcase) {
+      btnCloseShowcase.onclick = () => {
+        this.modalShowcase.classList.add('hidden');
+      };
+    }
 
     // Create Modal
     document.getElementById('btn-create-cancel')!.onclick = () => {
@@ -310,5 +328,151 @@ export class UIManager {
     this.perfMs.textContent = `${stats.frameTimeMs}ms`;
     this.perfCalls.textContent = `${stats.drawCalls}`;
     this.perfTris.textContent = stats.triangles > 1000 ? `${(stats.triangles / 1000).toFixed(1)}k` : `${stats.triangles}`;
+  }
+
+  public setModelVersion(version: 'v2-reference' | 'v1' | 'procedural') {
+    if (this.hudModelPill) {
+      if (version === 'v2-reference') {
+        this.hudModelPill.textContent = 'Model: V2 Reference-Accurate';
+        this.hudModelPill.style.borderColor = '#f28b9d';
+      } else if (version === 'v1') {
+        this.hudModelPill.textContent = 'Model: V1 Production';
+        this.hudModelPill.style.borderColor = '#56c5d5';
+      } else {
+        this.hudModelPill.textContent = 'Model: Procedural Fallback';
+        this.hudModelPill.style.borderColor = '#888';
+      }
+    }
+  }
+
+  private openCharacterShowcase() {
+    this.modalShowcase.classList.remove('hidden');
+    const container = document.getElementById('showcase-3d-canvas');
+    if (!container) return;
+
+    if (!this.showcase) {
+      this.showcase = new CharacterShowcase(container);
+
+      this.showcase.onStatsUpdated = (stats: ShowcaseStats) => {
+        const triElem = document.getElementById('sc-stat-tris');
+        if (triElem) triElem.textContent = stats.triangles.toLocaleString();
+        const vertElem = document.getElementById('sc-stat-verts');
+        if (vertElem) vertElem.textContent = stats.vertices.toLocaleString();
+        const meshElem = document.getElementById('sc-stat-meshes');
+        if (meshElem) meshElem.textContent = stats.meshes.toString();
+        const matElem = document.getElementById('sc-stat-mats');
+        if (matElem) matElem.textContent = stats.materials.toString();
+      };
+
+      const animSelect = document.getElementById('sc-anim-select') as HTMLSelectElement;
+      if (animSelect) {
+        this.showcase.onAnimationsLoaded = (names: string[]) => {
+          animSelect.innerHTML = '';
+          names.forEach((name) => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            animSelect.appendChild(opt);
+          });
+          animSelect.value = 'Idle';
+        };
+
+        animSelect.onchange = () => {
+          this.showcase?.playAnimation(animSelect.value);
+        };
+      }
+
+      const btnLumi = document.getElementById('showcase-btn-lumi');
+      const btnNova = document.getElementById('showcase-btn-nova');
+      const conceptImg = document.getElementById('showcase-concept-img') as HTMLImageElement;
+
+      const setChar = async (char: 'lumi' | 'nova') => {
+        if (char === 'lumi') {
+          btnLumi?.classList.add('active');
+          btnNova?.classList.remove('active');
+          if (conceptImg) conceptImg.src = '/assets/references/lumi-concept.png';
+        } else {
+          btnNova?.classList.add('active');
+          btnLumi?.classList.remove('active');
+          if (conceptImg) conceptImg.src = '/assets/references/nova-concept.png';
+        }
+        await this.showcase?.loadCharacter(char);
+      };
+
+      if (btnLumi) btnLumi.onclick = () => setChar('lumi');
+      if (btnNova) btnNova.onclick = () => setChar('nova');
+
+      // Camera presets
+      document.querySelectorAll<HTMLButtonElement>('.cam-preset-btn').forEach((btn) => {
+        btn.onclick = () => {
+          document.querySelectorAll('.cam-preset-btn').forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          const preset = btn.dataset.cam as any;
+          if (preset) this.showcase?.setViewPreset(preset);
+        };
+      });
+
+      // Anim play/pause & speed
+      const btnPlayPause = document.getElementById('sc-anim-toggle');
+      if (btnPlayPause) {
+        btnPlayPause.onclick = () => {
+          if (!this.showcase) return;
+          const isPlaying = this.showcase.togglePlayPause();
+          btnPlayPause.textContent = isPlaying ? '⏸ Pause' : '▶ Play';
+        };
+      }
+
+      const speedSlider = document.getElementById('sc-anim-speed') as HTMLInputElement;
+      const speedVal = document.getElementById('sc-speed-val');
+      if (speedSlider) {
+        speedSlider.oninput = () => {
+          const spd = parseFloat(speedSlider.value);
+          if (speedVal) speedVal.textContent = spd.toFixed(1) + 'x';
+          this.showcase?.setAnimationSpeed(spd);
+        };
+      }
+
+      // Morph target sliders
+      document.querySelectorAll<HTMLInputElement>('.morph-slider').forEach((slider) => {
+        slider.oninput = () => {
+          const morph = slider.dataset.morph!;
+          const val = parseFloat(slider.value);
+          const valSpan = document.getElementById(`val-${morph.toLowerCase()}`);
+          if (valSpan) valSpan.textContent = val.toFixed(2);
+
+          if (morph === 'BlinkBoth') {
+            this.showcase?.setMorphTargetValue('BlinkLeft', val);
+            this.showcase?.setMorphTargetValue('BlinkRight', val);
+          } else {
+            this.showcase?.setMorphTargetValue(morph, val);
+          }
+        };
+      });
+
+      // Turntable & Wireframe
+      const checkTurntable = document.getElementById('sc-check-turntable') as HTMLInputElement;
+      if (checkTurntable) {
+        checkTurntable.onchange = () => this.showcase?.toggleTurntable(checkTurntable.checked);
+      }
+
+      const checkWireframe = document.getElementById('sc-check-wireframe') as HTMLInputElement;
+      if (checkWireframe) {
+        checkWireframe.onchange = () => this.showcase?.toggleWireframe(checkWireframe.checked);
+      }
+
+      // Concept Drawer Toggle
+      const conceptDrawer = document.getElementById('showcase-concept-drawer');
+      const btnToggleConcept = document.getElementById('btn-toggle-concept');
+      const btnCloseConcept = document.getElementById('btn-concept-drawer-close');
+      if (btnToggleConcept && conceptDrawer) {
+        btnToggleConcept.onclick = () => conceptDrawer.classList.toggle('hidden');
+      }
+      if (btnCloseConcept && conceptDrawer) {
+        btnCloseConcept.onclick = () => conceptDrawer.classList.add('hidden');
+      }
+
+      // Initial load
+      setChar('lumi');
+    }
   }
 }

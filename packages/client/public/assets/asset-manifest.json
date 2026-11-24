@@ -6,11 +6,14 @@
   "characters": {
     "lumi": {
       "id": "char-lumi",
-      "name": "Lumi — The Light Weaver",
-      "path": "/assets/characters/lumi/lumi.glb",
-      "blendSource": "tools/blender/sources/lumi.blend",
+      "name": "Lumi — The Light Weaver (Reference-Accurate V2 Master)",
+      "path": "/assets/characters/lumi/lumi_v2.glb",
+      "legacyPath": "/assets/characters/lumi/lumi.glb",
+      "blendSource": "tools/blender/sources/lumi_reference_master.blend",
+      "referenceSheet": "art-references/characters/lumi-concept.png",
       "category": "character",
       "targetTriangles": 12000,
+      "shapeKeys": ["Smile", "Joyful", "Focused", "Playful", "BlinkLeft", "BlinkRight", "MouthOpen"],
       "animations": [
         "Idle", "Walk", "Run", "JumpStart", "JumpLoop", "Fall", "Land",
         "Ability", "HighFive", "Wave", "Hug", "Dance", "Celebrate", "Respawn"
@@ -18,11 +21,14 @@
     },
     "nova": {
       "id": "char-nova",
-      "name": "Nova — The Kinetic Shaper",
-      "path": "/assets/characters/nova/nova.glb",
-      "blendSource": "tools/blender/sources/nova.blend",
+      "name": "Nova — The Kinetic Shaper (Reference-Accurate V2 Master)",
+      "path": "/assets/characters/nova/nova_v2.glb",
+      "legacyPath": "/assets/characters/nova/nova.glb",
+      "blendSource": "tools/blender/sources/nova_reference_master.blend",
+      "referenceSheet": "art-references/characters/nova-concept.png",
       "category": "character",
       "targetTriangles": 12000,
+      "shapeKeys": ["Smile", "Confident", "Focused", "Playful", "BlinkLeft", "BlinkRight", "MouthOpen"],
       "animations": [
         "Idle", "Walk", "Run", "JumpStart", "JumpLoop", "Fall", "Land",
         "Ability", "HighFive", "Wave", "Hug", "Dance", "Celebrate", "Respawn"

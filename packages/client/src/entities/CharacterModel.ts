@@ -11,6 +11,9 @@ export class CharacterModel {
   // Skinned GLB model & Animation Mixer
   public glbModel: THREE.Group | null = null;
   public mixer: THREE.AnimationMixer | null = null;
+  public modelVersion: 'v2-reference' | 'v1' | 'procedural' = 'procedural';
+  public headMesh: THREE.Mesh | null = null;
+  public morphTargetMap: Map<string, number> = new Map();
   private actions: Map<string, THREE.AnimationAction> = new Map();
   private currentClipName: string = '';
   public proceduralRoot: THREE.Group;
@@ -106,14 +109,36 @@ export class CharacterModel {
 
   private async loadGlbModel() {
     try {
-      const url = `/assets/characters/${this.characterType}/${this.characterType}.glb`;
-      const instance = await assetManager.instantiateModel(url, 'character');
+      // 1. First attempt Reference-Accurate V2 Master GLB
+      const v2Url = `/assets/characters/${this.characterType}/${this.characterType}_v2.glb`;
+      let instance = await assetManager.instantiateModel(v2Url, 'character');
+      let isV2 = !instance.isFallback;
+
+      // 2. Fall back to V1 GLB if V2 is unavailable
+      if (instance.isFallback) {
+        const v1Url = `/assets/characters/${this.characterType}/${this.characterType}.glb`;
+        instance = await assetManager.instantiateModel(v1Url, 'character');
+        isV2 = false;
+      }
+
       if (!instance.isFallback && instance.root) {
         this.glbModel = instance.root;
         this.glbModel.position.set(0, 0, 0);
         this.group.add(this.glbModel);
         // Hide procedural fallback since professional GLB is active
         this.proceduralRoot.visible = false;
+        this.modelVersion = isV2 ? 'v2-reference' : 'v1';
+
+        // Detect Head mesh with morph targets / shape keys
+        this.glbModel.traverse((child) => {
+          const mesh = child as THREE.Mesh;
+          if (mesh.isMesh && mesh.morphTargetDictionary && mesh.morphTargetInfluences) {
+            this.headMesh = mesh;
+            for (const [name, idx] of Object.entries(mesh.morphTargetDictionary)) {
+              this.morphTargetMap.set(name, idx);
+            }
+          }
+        });
 
         this.mixer = new THREE.AnimationMixer(this.glbModel);
         for (const clip of instance.animations) {
@@ -126,9 +151,63 @@ export class CharacterModel {
           idleAction.play();
           this.currentClipName = 'Idle';
         }
+      } else {
+        this.modelVersion = 'procedural';
       }
     } catch (err) {
       console.warn(`[CharacterModel] Failed to load GLB for ${this.characterType}, remaining on procedural mesh.`, err);
+      this.modelVersion = 'procedural';
+    }
+  }
+
+  public setMorphTarget(name: string, value: number) {
+    if (!this.headMesh || !this.headMesh.morphTargetInfluences) return;
+    const idx = this.morphTargetMap.get(name);
+    if (idx !== undefined) {
+      this.headMesh.morphTargetInfluences[idx] = THREE.MathUtils.clamp(value, 0, 1);
+    }
+  }
+
+  private updateGlbFacialExpressions(dt: number, time: number) {
+    if (!this.headMesh || !this.headMesh.morphTargetInfluences) return;
+
+    // Natural eye blinking
+    this.blinkTimer += dt;
+    if (!this.isBlinking && this.blinkTimer > 3.8 + Math.sin(time) * 0.6) {
+      this.isBlinking = true;
+    }
+    if (this.isBlinking) {
+      const blinkProgress = (this.blinkTimer - 4.0) * 12;
+      if (blinkProgress >= 1.0) {
+        this.isBlinking = false;
+        this.blinkTimer = 0;
+        this.setMorphTarget('BlinkLeft', 0);
+        this.setMorphTarget('BlinkRight', 0);
+      } else {
+        const eyeScale = Math.sin(blinkProgress * Math.PI);
+        this.setMorphTarget('BlinkLeft', eyeScale);
+        this.setMorphTarget('BlinkRight', eyeScale);
+      }
+    }
+
+    // Facial expression based on action
+    if (this.celebrateTimer > 0) {
+      this.setMorphTarget(this.characterType === 'lumi' ? 'Joyful' : 'Confident', 0.85);
+      this.setMorphTarget('Smile', 0.8);
+      this.setMorphTarget('Focused', 0);
+    } else if (this.highfiveTimer > 0) {
+      this.setMorphTarget('Smile', 0.8);
+      this.setMorphTarget(this.characterType === 'lumi' ? 'Joyful' : 'Confident', 0.5);
+      this.setMorphTarget('Focused', 0);
+    } else if (this.abilityTimer > 0) {
+      this.setMorphTarget('Focused', 0.9);
+      this.setMorphTarget('Smile', 0);
+    } else {
+      const subtleSmile = (Math.sin(time * 1.5) + 1) * 0.12;
+      this.setMorphTarget('Smile', subtleSmile);
+      this.setMorphTarget('Joyful', 0);
+      this.setMorphTarget('Confident', 0);
+      this.setMorphTarget('Focused', 0);
     }
   }
 
@@ -693,6 +772,7 @@ export class CharacterModel {
       this.currentAction = targetAnim.toLowerCase() as CharacterAction;
       this.playAction(targetAnim);
       this.mixer.update(dt);
+      this.updateGlbFacialExpressions(dt, time);
 
       if (this.glbModel) {
         // Lean into turns

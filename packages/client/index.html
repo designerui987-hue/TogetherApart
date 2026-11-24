@@ -33,6 +33,7 @@
         <button id="btn-menu-create" class="btn btn-primary">Create Room</button>
         <button id="btn-menu-join" class="btn btn-secondary">Join Room</button>
         <button id="btn-menu-local" class="btn btn-accent">Local Play (Shared Screen)</button>
+        <button id="btn-menu-showcase" class="btn btn-outline" style="border: 2px solid #56c5d5; color: #d6f6fc; font-weight:700;">✨ Character Showcase (3D Preview)</button>
         <button id="btn-menu-settings" class="btn btn-ghost">Settings</button>
         <button id="btn-menu-how-to-play" class="btn btn-ghost">How to Play</button>
       </div>
@@ -231,6 +232,7 @@
         <span id="hud-mode-pill" class="badge">Online Co-Op</span>
         <span id="hud-room-code-pill" class="code-pill">Room: ------</span>
         <span id="hud-ping-pill" class="ping-pill">30ms</span>
+        <span id="hud-model-pill" class="badge" style="background: rgba(242, 139, 157, 0.25); border: 1px solid #f28b9d; color: #ffe6eb;">Model: V2 Reference-Accurate</span>
       </div>
       <div class="hud-checkpoint-pill" id="hud-checkpoint-title">📍 Arrival Meadow</div>
     </div>
@@ -287,6 +289,136 @@
         <div class="ability-slot">
           <div class="ability-cooldown-overlay" id="hud-p2-cd"></div>
           <span class="ability-key">K</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D CHARACTER SHOWCASE MODAL -->
+  <div id="showcase-modal" class="modal-overlay hidden">
+    <div class="modal-card fullscreen glass-panel showcase-container">
+      <!-- Showcase Header -->
+      <div class="showcase-header">
+        <div class="showcase-title-box">
+          <h2>Together Apart — 3D Character Showcase</h2>
+          <span class="showcase-subtitle">Reference-Accurate Master Production Models (Concept Matched)</span>
+        </div>
+        <div class="showcase-char-select">
+          <button id="showcase-btn-lumi" class="btn btn-primary active">✨ Lumi (The Light Weaver)</button>
+          <button id="showcase-btn-nova" class="btn btn-secondary">⚡ Nova (The Kinetic Shaper)</button>
+        </div>
+        <button id="btn-showcase-close" class="btn btn-ghost">✖ Return to Game</button>
+      </div>
+
+      <!-- Showcase Body -->
+      <div class="showcase-body">
+        <!-- 3D Viewport Box -->
+        <div class="showcase-viewport-box">
+          <div id="showcase-3d-canvas" class="showcase-canvas"></div>
+          
+          <!-- Viewport Overlay Badges -->
+          <div class="showcase-badges">
+            <span class="badge" id="showcase-badge-model">V2 Concept Master</span>
+            <span class="badge" id="showcase-badge-rig">14 Actions Rigged</span>
+            <span class="badge" id="showcase-badge-pbr">Calibrated PBR</span>
+          </div>
+
+          <!-- Camera Viewpoint Bar -->
+          <div class="showcase-camera-bar">
+            <span>Angle:</span>
+            <button class="cam-preset-btn active" data-cam="hero">Hero 3/4</button>
+            <button class="cam-preset-btn" data-cam="front">Front</button>
+            <button class="cam-preset-btn" data-cam="side">Side</button>
+            <button class="cam-preset-btn" data-cam="back">Back</button>
+            <button class="cam-preset-btn" data-cam="face">Face Close-up</button>
+            <button class="cam-preset-btn" data-cam="detail">Wings / Gauntlet</button>
+          </div>
+
+          <!-- Concept Sheet Split-View (Overlay) -->
+          <div id="showcase-concept-drawer" class="concept-drawer hidden">
+            <div class="concept-drawer-header">
+              <span>Official 2D Concept Specification</span>
+              <button id="btn-concept-drawer-close" class="btn btn-icon">✖</button>
+            </div>
+            <img id="showcase-concept-img" src="/assets/references/lumi-concept.png" alt="Concept Sheet" />
+          </div>
+        </div>
+
+        <!-- Right Control & Inspector Panel -->
+        <div class="showcase-panel">
+          <!-- Live Metrics Card -->
+          <div class="showcase-card">
+            <h3>Model Statistics & Performance</h3>
+            <div class="stats-grid">
+              <div class="s-chip"><span class="s-lbl">Triangles</span><strong id="sc-stat-tris">--</strong></div>
+              <div class="s-chip"><span class="s-lbl">Vertices</span><strong id="sc-stat-verts">--</strong></div>
+              <div class="s-chip"><span class="s-lbl">Meshes</span><strong id="sc-stat-meshes">--</strong></div>
+              <div class="s-chip"><span class="s-lbl">Materials</span><strong id="sc-stat-mats">--</strong></div>
+            </div>
+          </div>
+
+          <!-- Animation Actions -->
+          <div class="showcase-card">
+            <h3>Animation Actions (14 Rigged)</h3>
+            <div class="form-group">
+              <label for="sc-anim-select">Current Action</label>
+              <select id="sc-anim-select" class="form-select"></select>
+            </div>
+            <div class="anim-playback-row">
+              <button id="sc-anim-toggle" class="btn btn-accent btn-sm">⏸ Pause</button>
+              <div class="slider-field">
+                <label>Speed: <span id="sc-speed-val">1.0x</span></label>
+                <input type="range" id="sc-anim-speed" min="0.2" max="2.0" step="0.1" value="1.0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Facial Shape Keys -->
+          <div class="showcase-card">
+            <h3>Facial Expressions (Morph Targets)</h3>
+            <div id="sc-morph-sliders" class="morph-sliders-box">
+              <div class="slider-row">
+                <label>Smile: <span id="val-smile">0.0</span></label>
+                <input type="range" class="morph-slider" data-morph="Smile" min="0" max="1" step="0.05" value="0" />
+              </div>
+              <div class="slider-row">
+                <label>Joyful / Confident: <span id="val-joy">0.0</span></label>
+                <input type="range" class="morph-slider" data-morph="Joyful" min="0" max="1" step="0.05" value="0" />
+              </div>
+              <div class="slider-row">
+                <label>Focused: <span id="val-focused">0.0</span></label>
+                <input type="range" class="morph-slider" data-morph="Focused" min="0" max="1" step="0.05" value="0" />
+              </div>
+              <div class="slider-row">
+                <label>Playful: <span id="val-playful">0.0</span></label>
+                <input type="range" class="morph-slider" data-morph="Playful" min="0" max="1" step="0.05" value="0" />
+              </div>
+              <div class="slider-row">
+                <label>Blink: <span id="val-blink">0.0</span></label>
+                <input type="range" class="morph-slider" data-morph="BlinkBoth" min="0" max="1" step="0.05" value="0" />
+              </div>
+              <div class="slider-row">
+                <label>Mouth Open: <span id="val-mouth">0.0</span></label>
+                <input type="range" class="morph-slider" data-morph="MouthOpen" min="0" max="1" step="0.05" value="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- View & Inspection Toggles -->
+          <div class="showcase-card">
+            <h3>Inspection & Verification</h3>
+            <div class="toggle-group">
+              <label class="toggle-label">
+                <input type="checkbox" id="sc-check-turntable" />
+                <span>360° Turntable Auto-Rotate</span>
+              </label>
+              <label class="toggle-label">
+                <input type="checkbox" id="sc-check-wireframe" />
+                <span>Wireframe Mesh Mode</span>
+              </label>
+              <button id="btn-toggle-concept" class="btn btn-outline btn-sm" style="margin-top: 10px;">📋 Toggle 2D Concept Art Comparison</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

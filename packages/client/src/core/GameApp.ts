@@ -425,6 +425,7 @@ export class GameApp {
       partnerDist = this.player1.position.distanceTo(this.remotePlayer.position);
     }
     this.ui.updateHUD(this.player1.getCooldownPercent(), partnerDist);
+    this.ui.setModelVersion(this.player1.model.modelVersion);
   }
 
   private updateLocalGame(dt: number) {
@@ -510,6 +511,7 @@ export class GameApp {
       partnerDist,
       this.player2.getCooldownPercent()
     );
+    this.ui.setModelVersion(this.player1.model.modelVersion);
   }
 
   private handleInteractions(player: PlayerController, interactPressed: boolean) {
