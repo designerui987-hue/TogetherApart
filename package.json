@@ -1,0 +1,19 @@
+{
+  "name": "together-apart-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Together Apart - 3D Cooperative Adventure Game",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspace=@together-apart/client",
+    "server": "npm run dev --workspace=@together-apart/server",
+    "start": "npm run start --workspace=@together-apart/server"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^25.18.1",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "@together-apart/client",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.13.1",
+    "@together-apart/shared": "*",
+    "socket.io-client": "^4.7.5",
+    "three": "^0.164.1"
+  },
+  "devDependencies": {
+    "@types/three": "^0.164.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.10"
+  }
+}

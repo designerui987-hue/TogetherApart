@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Together Apart - 3D Cooperative Adventure</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💖</text></svg>">
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="game-container"></div>
+
+  <!-- MAIN MENU -->
+  <div id="main-menu" class="ui-screen active">
+    <div class="menu-card glass-panel">
+      <div class="logo-box">
+        <h1 class="game-logo">Together <span class="logo-accent">Apart</span></h1>
+        <p class="tagline">A Cozy 3D Cooperative Adventure for Two</p>
+      </div>
+
+      <div class="menu-buttons">
+        <button id="btn-menu-create" class="btn btn-primary">Create Room</button>
+        <button id="btn-menu-join" class="btn btn-secondary">Join Room</button>
+        <button id="btn-menu-local" class="btn btn-accent">Local Play (Shared Screen)</button>
+        <button id="btn-menu-settings" class="btn btn-ghost">Settings</button>
+        <button id="btn-menu-how-to-play" class="btn btn-ghost">How to Play</button>
+      </div>
+
+      <div class="menu-footer">
+        <span>Press <kbd>Esc</kbd> anytime to toggle menu / cursor</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE ROOM MODAL -->
+  <div id="create-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <h2>Create Adventure Room</h2>
+      <div class="form-group">
+        <label for="create-name">Your Name</label>
+        <input type="text" id="create-name" value="Lumi" maxlength="14" />
+      </div>
+      <div class="form-group">
+        <label>Choose Character</label>
+        <div class="character-radio-group">
+          <label class="char-option lumi-opt">
+            <input type="radio" name="create-char" value="lumi" checked />
+            <div class="char-badge">
+              <span class="char-icon">✨</span>
+              <strong>Lumi</strong>
+              <small>Light Platforms</small>
+            </div>
+          </label>
+          <label class="char-option nova-opt">
+            <input type="radio" name="create-char" value="nova" />
+            <div class="char-badge">
+              <span class="char-icon">⚡</span>
+              <strong>Nova</strong>
+              <small>Kinetic Pulses</small>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-create-confirm" class="btn btn-primary">Create & Enter Lobby</button>
+        <button id="btn-create-cancel" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOIN ROOM MODAL -->
+  <div id="join-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <h2>Join Friend's Room</h2>
+      <div class="form-group">
+        <label for="join-code">6-Character Room Code</label>
+        <input type="text" id="join-code" placeholder="e.g. COZY88" maxlength="6" style="text-transform:uppercase; letter-spacing: 4px; font-size: 1.4rem; text-align: center;" />
+      </div>
+      <div class="form-group">
+        <label for="join-name">Your Name</label>
+        <input type="text" id="join-name" value="Nova" maxlength="14" />
+      </div>
+      <div class="modal-actions">
+        <button id="btn-join-confirm" class="btn btn-secondary">Join Room</button>
+        <button id="btn-join-cancel" class="btn btn-ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOBBY SCREEN -->
+  <div id="lobby-screen" class="ui-screen hidden">
+    <div class="lobby-card glass-panel">
+      <div class="lobby-header">
+        <h2>Adventure Lobby</h2>
+        <div class="room-code-tag">
+          <span>Room Code:</span>
+          <strong id="lobby-room-code">------</strong>
+          <button id="btn-copy-code" class="btn btn-icon" title="Copy Room Code">📋</button>
+        </div>
+      </div>
+
+      <div class="lobby-slots">
+        <div id="slot-player-1" class="player-slot glass-panel-inner">
+          <div class="slot-avatar">✨</div>
+          <div class="slot-info">
+            <h3 class="slot-name">Waiting for Player 1...</h3>
+            <span class="slot-char">Lumi</span>
+          </div>
+          <span class="ready-badge not-ready">Not Ready</span>
+        </div>
+
+        <div class="co-op-versus-divider">💖</div>
+
+        <div id="slot-player-2" class="player-slot glass-panel-inner">
+          <div class="slot-avatar">⚡</div>
+          <div class="slot-info">
+            <h3 class="slot-name">Waiting for Player 2...</h3>
+            <span class="slot-char">Nova</span>
+          </div>
+          <span class="ready-badge not-ready">Not Ready</span>
+        </div>
+      </div>
+
+      <div class="lobby-actions">
+        <button id="btn-lobby-switch-char" class="btn btn-ghost">Switch Character</button>
+        <button id="btn-lobby-ready" class="btn btn-accent">I'm Ready!</button>
+        <button id="btn-lobby-start" class="btn btn-primary" disabled>Start Adventure (Both Must Be Ready)</button>
+        <button id="btn-lobby-leave" class="btn btn-ghost">Leave Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW TO PLAY MODAL -->
+  <div id="how-to-play-modal" class="modal-overlay hidden">
+    <div class="modal-card wide glass-panel">
+      <h2>How to Play Together</h2>
+      <div class="htp-grid">
+        <div class="htp-card lumi-theme">
+          <h3>✨ Lumi (Light Weaver)</h3>
+          <p>Lumi casts glowing starlight platforms in mid-air using <kbd>Q</kbd>. These platforms last 6 seconds and allow both players to cross wide chasms or gain vertical height.</p>
+        </div>
+        <div class="htp-card nova-theme">
+          <h3>⚡ Nova (Kinetic Shaper)</h3>
+          <p>Nova emits kinetic energy pulses with <kbd>Q</kbd> to awaken ancient crystal mechanisms, activate moving platforms, and shift magnetic stones.</p>
+        </div>
+      </div>
+
+      <div class="controls-guide">
+        <h3>Controls</h3>
+        <div class="controls-table">
+          <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> Move</div>
+          <div><kbd>Space</kbd> Jump (Forgiving Coyote Time)</div>
+          <div><kbd>Shift</kbd> Sprint</div>
+          <div><kbd>E</kbd> Interact / High-Five when near partner</div>
+          <div><kbd>Q</kbd> Special Character Ability</div>
+          <div><kbd>Mouse</kbd> Camera Rotation (Click to lock)</div>
+          <div><kbd>Esc</kbd> Pause / Cursor Release</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btn-htp-close" class="btn btn-primary">Got it!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-card glass-panel">
+      <h2>Audio & Settings</h2>
+      <div class="form-group">
+        <label for="slider-volume">Master Volume</label>
+        <input type="range" id="slider-volume" min="0" max="1" step="0.05" value="0.7" />
+      </div>
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="check-mute" />
+          <span>Mute Audio</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-settings-close" class="btn btn-primary">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-GAME HUD -->
+  <div id="in-game-hud" class="ui-screen hidden">
+    <!-- Top Bar -->
+    <div class="hud-top-bar">
+      <div class="hud-room-info">
+        <span id="hud-mode-pill" class="badge">Online Co-Op</span>
+        <span id="hud-room-code-pill" class="code-pill">Room: ------</span>
+        <span id="hud-ping-pill" class="ping-pill">30ms</span>
+      </div>
+      <div class="hud-checkpoint-pill" id="hud-checkpoint-title">📍 Arrival Meadow</div>
+    </div>
+
+    <!-- Notification Toast Banner -->
+    <div id="hud-toast" class="hud-toast hidden">
+      <span class="toast-icon">✨</span>
+      <span id="toast-text" class="toast-text">Welcome!</span>
+    </div>
+
+    <!-- Center Interactive Prompt (e.g. High-Five, Pressure Plate, Switch) -->
+    <div id="hud-interact-prompt" class="hud-prompt hidden">
+      <span class="prompt-key">E</span>
+      <span id="prompt-label" class="prompt-text">High-Five Partner!</span>
+    </div>
+
+    <!-- Bottom HUD Bar -->
+    <div class="hud-bottom-bar">
+      <!-- Player 1 Ability Card -->
+      <div class="hud-player-card" id="hud-p1-card">
+        <div class="char-portrait lumi-bg">✨</div>
+        <div class="char-details">
+          <strong id="hud-p1-name">Lumi</strong>
+          <span id="hud-p1-ability-name">Starlight Bridge</span>
+        </div>
+        <div class="ability-slot">
+          <div class="ability-cooldown-overlay" id="hud-p1-cd"></div>
+          <span class="ability-key">Q</span>
+        </div>
+      </div>
+
+      <!-- Partner Distance Compass -->
+      <div class="hud-partner-compass" id="hud-partner-compass">
+        <div class="heart-pulse-icon">💖</div>
+        <span id="hud-partner-distance">Partner: 0.0m</span>
+      </div>
+
+      <!-- Player 2 Ability Card (Active in Local Mode) -->
+      <div class="hud-player-card hidden" id="hud-p2-card">
+        <div class="char-portrait nova-bg">⚡</div>
+        <div class="char-details">
+          <strong id="hud-p2-name">Nova</strong>
+          <span id="hud-p2-ability-name">Kinetic Pulse</span>
+        </div>
+        <div class="ability-slot">
+          <div class="ability-cooldown-overlay" id="hud-p2-cd"></div>
+          <span class="ability-key">K</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VICTORY OVERLAY -->
+  <div id="victory-modal" class="modal-overlay hidden">
+    <div class="modal-card victory-card glass-panel">
+      <div class="victory-header">
+        <div class="victory-hearts">💖 ✨ 💖</div>
+        <h1>Adventure Complete!</h1>
+        <p>You unlocked the Heart Gate and conquered the Island of Connection together!</p>
+      </div>
+      <div class="victory-stats">
+        <div class="vstat">
+          <strong>3 / 3</strong>
+          <span>Puzzles Solved</span>
+        </div>
+        <div class="vstat">
+          <strong>100%</strong>
+          <span>Team Harmony</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="btn-victory-replay" class="btn btn-primary">Play Again</button>
+        <button id="btn-victory-menu" class="btn btn-ghost">Return to Menu</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.ts"></script>
+</body>
+</html>
