@@ -13,6 +13,14 @@
 <body>
   <div id="game-container"></div>
 
+  <!-- DEVELOPER PERFORMANCE OVERLAY -->
+  <div id="perf-overlay" class="perf-overlay hidden">
+    <div class="perf-row"><span class="perf-lbl">FPS</span><strong id="perf-fps">60</strong></div>
+    <div class="perf-row"><span class="perf-lbl">Frame</span><span id="perf-ms">16.6ms</span></div>
+    <div class="perf-row"><span class="perf-lbl">Draw Calls</span><span id="perf-calls">32</span></div>
+    <div class="perf-row"><span class="perf-lbl">Triangles</span><span id="perf-tris">18.4k</span></div>
+  </div>
+
   <!-- MAIN MENU -->
   <div id="main-menu" class="ui-screen active">
     <div class="menu-card glass-panel">
@@ -51,7 +59,7 @@
             <div class="char-badge">
               <span class="char-icon">✨</span>
               <strong>Lumi</strong>
-              <small>Light Platforms</small>
+              <small>The Light Weaver</small>
             </div>
           </label>
           <label class="char-option nova-opt">
@@ -59,7 +67,7 @@
             <div class="char-badge">
               <span class="char-icon">⚡</span>
               <strong>Nova</strong>
-              <small>Kinetic Pulses</small>
+              <small>The Kinetic Shaper</small>
             </div>
           </label>
         </div>
@@ -104,10 +112,10 @@
 
       <div class="lobby-slots">
         <div id="slot-player-1" class="player-slot glass-panel-inner">
-          <div class="slot-avatar">✨</div>
+          <div class="slot-avatar lumi-avatar">✨</div>
           <div class="slot-info">
             <h3 class="slot-name">Waiting for Player 1...</h3>
-            <span class="slot-char">Lumi</span>
+            <span class="slot-char">Lumi (Light Weaver)</span>
           </div>
           <span class="ready-badge not-ready">Not Ready</span>
         </div>
@@ -115,10 +123,10 @@
         <div class="co-op-versus-divider">💖</div>
 
         <div id="slot-player-2" class="player-slot glass-panel-inner">
-          <div class="slot-avatar">⚡</div>
+          <div class="slot-avatar nova-avatar">⚡</div>
           <div class="slot-info">
             <h3 class="slot-name">Waiting for Player 2...</h3>
-            <span class="slot-char">Nova</span>
+            <span class="slot-char">Nova (Kinetic Shaper)</span>
           </div>
           <span class="ready-badge not-ready">Not Ready</span>
         </div>
@@ -139,11 +147,11 @@
       <h2>How to Play Together</h2>
       <div class="htp-grid">
         <div class="htp-card lumi-theme">
-          <h3>✨ Lumi (Light Weaver)</h3>
+          <h3>✨ Lumi (The Light Weaver)</h3>
           <p>Lumi casts glowing starlight platforms in mid-air using <kbd>Q</kbd>. These platforms last 6 seconds and allow both players to cross wide chasms or gain vertical height.</p>
         </div>
         <div class="htp-card nova-theme">
-          <h3>⚡ Nova (Kinetic Shaper)</h3>
+          <h3>⚡ Nova (The Kinetic Shaper)</h3>
           <p>Nova emits kinetic energy pulses with <kbd>Q</kbd> to awaken ancient crystal mechanisms, activate moving platforms, and shift magnetic stones.</p>
         </div>
       </div>
@@ -170,17 +178,45 @@
   <!-- SETTINGS MODAL -->
   <div id="settings-modal" class="modal-overlay hidden">
     <div class="modal-card glass-panel">
-      <h2>Audio & Settings</h2>
+      <h2>Audio & Graphics Settings</h2>
+      
+      <!-- Graphics Quality Preset -->
+      <div class="form-group">
+        <label for="select-graphics">Graphics Quality</label>
+        <select id="select-graphics" class="form-select">
+          <option value="low">Low (Fastest, No Shadows/Bloom)</option>
+          <option value="medium">Medium (Shadows + Selective Bloom)</option>
+          <option value="high" selected>High (HD Shadows, Bloom & Vignette)</option>
+          <option value="ultra">Ultra (Max Quality & Post-Processing)</option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label for="slider-volume">Master Volume</label>
         <input type="range" id="slider-volume" min="0" max="1" step="0.05" value="0.7" />
       </div>
+
       <div class="form-group checkbox-group">
         <label>
           <input type="checkbox" id="check-mute" />
           <span>Mute Audio</span>
         </label>
       </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="check-reduced-motion" />
+          <span>Reduced Motion (Disable Sprint FOV Kick)</span>
+        </label>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="check-show-perf" />
+          <span>Show Developer Performance Overlay (FPS/Calls)</span>
+        </label>
+      </div>
+
       <div class="modal-actions">
         <button id="btn-settings-close" class="btn btn-primary">Done</button>
       </div>
@@ -205,7 +241,7 @@
       <span id="toast-text" class="toast-text">Welcome!</span>
     </div>
 
-    <!-- Center Interactive Prompt (e.g. High-Five, Pressure Plate, Switch) -->
+    <!-- Center Interactive Prompt -->
     <div id="hud-interact-prompt" class="hud-prompt hidden">
       <span class="prompt-key">E</span>
       <span id="prompt-label" class="prompt-text">High-Five Partner!</span>
@@ -252,13 +288,13 @@
     <div class="modal-card victory-card glass-panel">
       <div class="victory-header">
         <div class="victory-hearts">💖 ✨ 💖</div>
-        <h1>Adventure Complete!</h1>
-        <p>You unlocked the Heart Gate and conquered the Island of Connection together!</p>
+        <h1>Island Conquered!</h1>
+        <p>You unlocked the Heart Gate and mastered the Island of Connection together!</p>
       </div>
       <div class="victory-stats">
         <div class="vstat">
           <strong>3 / 3</strong>
-          <span>Puzzles Solved</span>
+          <span>Challenges Solved</span>
         </div>
         <div class="vstat">
           <strong>100%</strong>

@@ -1,5 +1,6 @@
 import { CharacterType, RoomState } from '@together-apart/shared';
 import { soundSynth } from '../audio/SoundSynth';
+import { PerformanceStats, QualityPreset } from '../graphics/SceneManager';
 
 export type UIScreen = 'MAIN_MENU' | 'LOBBY' | 'IN_GAME';
 
@@ -15,6 +16,13 @@ export class UIManager {
   private modalHowToPlay = document.getElementById('how-to-play-modal')!;
   private modalSettings = document.getElementById('settings-modal')!;
   private modalVictory = document.getElementById('victory-modal')!;
+
+  // Performance Overlay
+  private perfOverlay = document.getElementById('perf-overlay')!;
+  private perfFps = document.getElementById('perf-fps')!;
+  private perfMs = document.getElementById('perf-ms')!;
+  private perfCalls = document.getElementById('perf-calls')!;
+  private perfTris = document.getElementById('perf-tris')!;
 
   // Toast & Prompt
   private toastElement = document.getElementById('hud-toast')!;
@@ -52,6 +60,8 @@ export class UIManager {
   public onStartGame?: () => void;
   public onLeaveLobby?: () => void;
   public onReplay?: () => void;
+  public onQualityPresetChange?: (preset: QualityPreset) => void;
+  public onReducedMotionChange?: (enabled: boolean) => void;
 
   private isReady: boolean = false;
   private toastTimeout: NodeJS.Timeout | null = null;
@@ -117,6 +127,31 @@ export class UIManager {
     const muteCheck = document.getElementById('check-mute') as HTMLInputElement;
     muteCheck.onchange = () => soundSynth.setMuted(muteCheck.checked);
 
+    // Graphics Quality Selector
+    const selectGraphics = document.getElementById('select-graphics') as HTMLSelectElement;
+    if (selectGraphics) {
+      selectGraphics.onchange = () => {
+        const val = selectGraphics.value as QualityPreset;
+        if (this.onQualityPresetChange) this.onQualityPresetChange(val);
+      };
+    }
+
+    // Reduced Motion Toggle
+    const checkMotion = document.getElementById('check-reduced-motion') as HTMLInputElement;
+    if (checkMotion) {
+      checkMotion.onchange = () => {
+        if (this.onReducedMotionChange) this.onReducedMotionChange(checkMotion.checked);
+      };
+    }
+
+    // Developer Performance Overlay Toggle
+    const checkPerf = document.getElementById('check-show-perf') as HTMLInputElement;
+    if (checkPerf) {
+      checkPerf.onchange = () => {
+        this.perfOverlay.classList.toggle('hidden', !checkPerf.checked);
+      };
+    }
+
     // Lobby Actions
     document.getElementById('btn-copy-code')!.onclick = () => {
       const code = this.lobbyRoomCode.textContent || '';
@@ -169,7 +204,7 @@ export class UIManager {
     const p1 = players[0];
     if (p1) {
       this.slotP1Name.textContent = p1.name;
-      this.slotP1Char.textContent = p1.character === 'lumi' ? '✨ Lumi' : '⚡ Nova';
+      this.slotP1Char.textContent = p1.character === 'lumi' ? '✨ Lumi (Light Weaver)' : '⚡ Nova (Kinetic Shaper)';
       this.slotP1Ready.textContent = p1.ready ? 'Ready!' : 'Not Ready';
       this.slotP1Ready.className = `ready-badge ${p1.ready ? 'ready' : 'not-ready'}`;
     }
@@ -178,7 +213,7 @@ export class UIManager {
     const p2 = players[1];
     if (p2) {
       this.slotP2Name.textContent = p2.name;
-      this.slotP2Char.textContent = p2.character === 'lumi' ? '✨ Lumi' : '⚡ Nova';
+      this.slotP2Char.textContent = p2.character === 'lumi' ? '✨ Lumi (Light Weaver)' : '⚡ Nova (Kinetic Shaper)';
       this.slotP2Ready.textContent = p2.ready ? 'Ready!' : 'Not Ready';
       this.slotP2Ready.className = `ready-badge ${p2.ready ? 'ready' : 'not-ready'}`;
     } else {
@@ -243,5 +278,12 @@ export class UIManager {
   public showVictory() {
     this.modalVictory.classList.remove('hidden');
     soundSynth.playVictory();
+  }
+
+  public updatePerformanceStats(stats: PerformanceStats) {
+    this.perfFps.textContent = `${stats.fps}`;
+    this.perfMs.textContent = `${stats.frameTimeMs}ms`;
+    this.perfCalls.textContent = `${stats.drawCalls}`;
+    this.perfTris.textContent = stats.triangles > 1000 ? `${(stats.triangles / 1000).toFixed(1)}k` : `${stats.triangles}`;
   }
 }

@@ -1,64 +1,53 @@
-# Together Apart - Implementation Tasks & Roadmap
+# Together Apart — Implementation Tasks & Roadmap
 
-## Phase 1: Foundation & Project Workspace Setup
+## Phase 1: Foundation & Gameplay Prototype
 - [x] Create project design and architecture documentation (`GAME_DESIGN.md`, `ARCHITECTURE.md`, `TASKS.md`).
 - [x] Initialize npm workspace (`package.json`, `packages/shared`, `packages/server`, `packages/client`).
-- [x] Install compatible dependencies: Three.js, @dimforge/rapier3d-compat, socket.io, socket.io-client, express, vite, typescript.
-- [x] Configure TypeScript configs and monorepo build scripts.
+- [x] Install dependencies: Three.js, @dimforge/rapier3d-compat, socket.io, socket.io-client, express, vite, typescript.
+- [x] Shared Types & Protocol (`PlayerState`, `RoomState`, `PuzzleState`, `TransformState`, `ClientToServerEvents`).
+- [x] Server Implementation (`RoomManager`, `GameRoom`, `PuzzleEngine`).
+- [x] Client Foundation (Three.js WebGL, Rapier 3D physics, SoundSynth procedural audio).
+- [x] Character controllers, coyote time, jump buffering, online and local shared keyboard inputs.
+- [x] Level 1: The Island of Connection (3 cooperative challenges: Trust Bridge, Magical Crossing, Heart Gate).
+- [x] Main Menu, Lobby, In-Game HUD, Victory Modal.
+- [x] 12-stage automated multiplayer test suite.
 
-## Phase 2: Shared Types & Protocol
-- [x] Implement `packages/shared/src/types.ts`:
-  - `PlayerState`, `CharacterType` ('lumi' | 'nova'), `TransformState`, `InputFrame`.
-  - `RoomState`, `RoomPlayer`, `PuzzleState`, `CheckpointState`.
-- [x] Implement `packages/shared/src/protocol.ts`:
-  - Socket.IO client-server events: `room:create`, `room:join`, `room:ready`, `game:start`, `player:update`, `player:ability`, `player:highfive`, `player:interact`, `player:checkpoint`, `player:respawn`.
-- [x] Implement `packages/shared/src/constants.ts`: physics parameters, level coordinates, challenge IDs.
+---
 
-## Phase 3: Server Implementation
-- [x] Set up Express + Socket.IO server in `packages/server`.
-- [x] Implement `RoomManager` with 6-character room codes (e.g. `MK8ZLP`), 2-player capacity, lobby ready states.
-- [x] Implement `GameRoom` managing the 30Hz network tick loop, player pairing, and disconnect handling.
-- [x] Implement `PuzzleEngine`:
-  - Challenge 1: Trust Bridge state machine (plate held -> bridge active -> lever activated -> locked).
-  - Challenge 2: Magical Crossing state machine (platform active timer, moving platform position).
-  - Challenge 3: Heart Gate dual-switch simultaneous timing window (1.8s tolerance).
-  - Level completion tracking and broadcast.
-
-## Phase 4: Client Graphics, Physics & Procedural Characters
-- [x] Initialize Three.js WebGLRenderer, shadow maps, ambient/directional lighting, pastel fog, and skybox gradient.
-- [x] Initialize Rapier 3D physics world with fixed timestep.
-- [x] Procedural character generation:
-  - Lumi: Warm coral/peach chibi character with bobbing floating wings, antenna light, procedural walk/jump cycle.
-  - Nova: Cool turquoise/cyan chibi character with floating magnetic horns, procedural walk/jump cycle.
-- [x] Procedural particle system for heart bursts, starlight platforms, and kinetic pulses.
-- [x] Procedural Web Audio API sound synthesizer (jumps, steps, abilities, high-fives, victory chime, ambient music).
-
-## Phase 5: Player Controller, Camera & Local/Online Input
-- [x] Third-person camera controller with smooth follow, mouse orbit, and pitch clamping.
-- [x] Responsive character kinematic physics with acceleration, coyote time, and jump buffering.
-- [x] Dual-player local input support (Player 1 WASD + Q/E/Space, Player 2 Arrows + K/L/Ctrl) with dynamic framing camera.
-- [x] Remote player entity interpolation (lerp position, slerp quaternion).
-- [x] Ability implementation:
-  - Lumi: Spawn 6-second Starlight Platform.
-  - Nova: Kinetic Pulse wave activating crystals and platforms.
-
-## Phase 6: First Level & Cooperative Puzzles
-- [x] Procedural level generator: Floating sky islands with grass caps, rock underside, trees, flowers, crystals, waterfalls, and checkpoints.
-- [x] Challenge 1: Trust Bridge with interactive pressure plate, visual rope bridge, and crystal locking lever.
-- [x] Challenge 2: Magical Crossing with crystal conduit, moving floating platform, and gap requiring Lumi's platform.
-- [x] Challenge 3: Heart Gate with twin glowing conduits, simultaneous activation switches, and opening door animation.
-- [x] Victory summit with celebratory heart burst and stats.
-
-## Phase 7: UI Menus, Lobby, HUD & Couple Interactions
-- [x] Main Menu: Logo, Create Room, Join Room (with 6-character code input), Local Play, Settings, How to Play.
-- [x] Multiplayer Lobby: Character selection, ready toggle, copy room code button, player status indicators.
-- [x] In-game HUD: Character portrait, ability cooldown & icon, partner distance & direction indicator, high-five prompt (`[E] High-Five!`), shared checkpoint notification.
-- [x] Pause menu and controls customization.
-- [x] Victory screen overlay with replay / return to menu options.
-
-## Phase 8: Testing, Verification & Launch Documentation
-- [x] Run full build (`tsc`, Vite build) across all packages with zero errors.
-- [x] Start unified server daemon on port 3001.
-- [x] Conduct 12-stage automated multiplayer integration test verifying connection, puzzle solving, high-fives, and level completion.
-- [x] Conduct dual-browser end-to-end testing with Puppeteer, verifying concurrent UI interaction and WebGL rendering.
-- [x] Document complete setup and instructions in `README.md`.
+## Phase 2: Premium Visual Overhaul
+- [x] Create and checkout git branch `phase-2-visual-overhaul`.
+- [x] Capture and archive prototype baseline screenshots to `screenshots/baseline/`.
+- [x] Author `VISUAL_DESIGN.md`, `VISUAL_UPGRADE_TASKS.md`, and `ASSET_LICENSES.md`.
+- [x] Upgrade Rendering Engine (`SceneManager.ts`):
+  - [x] Three.js `EffectComposer` pipeline with `RenderPass`, `UnrealBloomPass`, and custom `VignetteColorGradeShader`.
+  - [x] sRGB linear color management, ACESFilmicToneMapping, calibrated exposure ($1.15$).
+  - [x] Warm directional sunlight, soft PCF shadows, and lavender ground bounce fill.
+  - [x] Procedural celestial gradient sky dome (peach horizon to mystical lavender and azure).
+  - [x] Layered fluffy drifting clouds.
+  - [x] Quality presets: Low, Medium, High, Ultra with runtime switching.
+- [x] Sculpt Concept-Matched Character Models (`CharacterModel.ts`):
+  - [x] **Lumi**: Animated expressive anime eyes, blinking eyelids, soft coral hair with bangs & curls, layered fairy dress with scalloped frills and brooch, glowing translucent butterfly wings with flutter, flowing silk scarf with wave physics.
+  - [x] **Nova**: Elven pointed ears, golden skin tone, cyan iris spark, sweeping crest hair, winged golden headpiece with amber gem, adventurer teal tunic with brass buckle belt, oversized kinetic gauntlets, and orbiting satellite crystal gyro rings.
+  - [x] Universal Animation State Machine: idle breathing, blinking, walk, sprint, jump anticipation, apex glide, falling, landing squash & stretch recovery, turning bank lean, ability casts, high-five, and victory celebration.
+- [x] Environment Overhaul (`IslandLevel.ts`):
+  - [x] Organic irregular islands with layered rock strata, overhanging grass lips, and moss edges.
+  - [x] Instanced wildflowers (coral, yellow, turquoise, white daisies) and grass tufts.
+  - [x] Stylized multi-tiered cloud canopy trees with wind sway.
+  - [x] Bioluminescent fairy mushroom clusters and glowing crystals.
+  - [x] Animated waterfalls with scrolling foam and mist particles.
+  - [x] Distant floating islands in depth parallax, drifting fireflies, and animated fluttering butterflies.
+- [x] Puzzle Visual Redesign & Visual Effects (`IslandLevel.ts`, `ParticleSystem.ts`):
+  - [x] Weathered timber Trust Bridge with rope posts, brass spiral pressure plate, and crystal gear lever.
+  - [x] Prismatic iridescent Starlight Platform with perimeter rune dial; Nova kinetic obelisk with spinning gyroscope rings.
+  - [x] Grand stone Heart Gate archway with intertwined heart motif, engraved runes, glowing coral & turquoise ground conduits, and sliding doors.
+  - [x] Pooled particle system for jump dust, landing dust puffs, sprint trails, high-five heart fireworks, and victory celebration.
+- [x] Camera, Game Feel & HUD/UI Polish (`CameraController.ts`, `UIManager.ts`, `style.css`):
+  - [x] Camera sprint FOV expansion, ground collision clamping, and living 3D menu showcase orbit.
+  - [x] Glassmorphism UI 2.0 with iridescent border highlights.
+  - [x] Graphics Quality selector (Low / Medium / High / Ultra), Reduced Motion toggle, and Developer Performance Stats HUD.
+- [x] Full regression and visual verification:
+  - [x] Monorepo build check (`npm run build`).
+  - [x] 12-Stage automated multiplayer test (`node test-multiplayer.mjs`).
+  - [x] Dual-browser Puppeteer visual test (`node test-browser-e2e.mjs`) with zero console errors.
+  - [x] Save before and after screenshots.
+  - [x] Commit and push branch `phase-2-visual-overhaul` to GitHub.

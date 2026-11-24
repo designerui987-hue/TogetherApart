@@ -2,6 +2,5 @@ node_modules/
 dist/
 .chrome_test/
 .edge_test/
-screenshots/
 *.log
 .DS_Store
