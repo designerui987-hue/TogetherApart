@@ -94,6 +94,12 @@ export class PlayerController {
     const wasGrounded = this.isGrounded;
     this.isGrounded = hit !== null && hit.timeOfImpact <= 0.55;
 
+    // Detect landing impact for squash/stretch and dust VFX
+    if (!wasGrounded && this.isGrounded) {
+      this.model.triggerLandingSquash();
+      this.particles.emitSparkles(this.position, 10, 0xdfd7bf); // Landing dust
+    }
+
     // Coyote time logic
     if (this.isGrounded) {
       this.coyoteTimer = PHYSICS.COYOTE_TIME_MS / 1000;
@@ -104,6 +110,8 @@ export class PlayerController {
     // 4. Movement Calculation
     const moveSpeed = input.sprint ? PHYSICS.SPRINT_SPEED : PHYSICS.WALK_SPEED;
     const inputVec = new THREE.Vector3(input.right, 0, input.forward);
+    const curRot = this.model.group.rotation.y;
+    let targetAngle = curRot;
 
     if (inputVec.lengthSq() > 0.01) {
       inputVec.normalize();
@@ -112,8 +120,7 @@ export class PlayerController {
       this.isMoving = true;
 
       // Rotate model towards movement direction
-      const targetAngle = Math.atan2(inputVec.x, inputVec.z);
-      const curRot = this.model.group.rotation.y;
+      targetAngle = Math.atan2(inputVec.x, inputVec.z);
       this.model.group.rotation.y = THREE.MathUtils.lerp(
         curRot,
         targetAngle,
@@ -122,6 +129,9 @@ export class PlayerController {
 
       // Footstep sounds
       this.footstepTimer += dt * (input.sprint ? 1.5 : 1.0);
+      if (input.sprint && this.isGrounded && Math.random() < 0.3) {
+        this.particles.emitSprintTrail(this.position, this.characterType === 'lumi' ? 0xf28b9d : 0x56c5d5);
+      }
       if (this.isGrounded && this.footstepTimer > 0.38) {
         soundSynth.playStep();
         this.footstepTimer = 0;
@@ -145,6 +155,7 @@ export class PlayerController {
       this.coyoteTimer = 0;
       this.isGrounded = false;
       soundSynth.playJump();
+      this.particles.emitJumpDust(this.position);
     } else if (!this.isGrounded) {
       // Gravity application
       this.velocity.y += PHYSICS.GRAVITY * dt;
@@ -161,11 +172,14 @@ export class PlayerController {
     this.model.group.position.copy(this.position);
     this.rotation.copy(this.model.group.quaternion);
 
-    // Procedural animation
-    this.model.animate(performance.now() * 0.001, this.isMoving, this.isGrounded, dt);
+    // Procedural animation with speed ratio and banking turn rate
+    const speedRatio = input.sprint ? 1.5 : (this.isMoving ? 1.0 : 0.0);
+    const turnRate = this.velocity.length() > 0.5 ? (targetAngle - curRot) : 0;
+    this.model.animate(performance.now() * 0.001, this.isMoving, this.isGrounded, dt, speedRatio, turnRate);
   }
 
   private triggerAbility(onAbilityTriggered?: (type: 'platform' | 'pulse', pos: Vector3D) => void) {
+    this.model.triggerAbility();
     if (this.characterType === 'lumi') {
       this.abilityCooldown = ABILITIES.LUMI_PLATFORM_COOLDOWN_SEC;
       soundSynth.playLumiPlatform();

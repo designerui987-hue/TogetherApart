@@ -134,6 +134,14 @@ export class GameApp {
         this.network.sendRespawn(0);
       }
     };
+
+    this.ui.onQualityPresetChange = (preset) => {
+      this.sceneManager.setQualityPreset(preset);
+    };
+
+    this.ui.onReducedMotionChange = (enabled) => {
+      this.cameraController.reducedMotion = enabled;
+    };
   }
 
   private setupNetworkHandlers() {
@@ -302,7 +310,10 @@ export class GameApp {
       // Update input buffer timer
       this.inputManager.update(dt);
 
-      if (this.gameMode === 'online' && this.player1) {
+      if (this.gameMode === 'none') {
+        // Living animated 3D menu camera showcase
+        this.cameraController.updateMenuOrbit(dt);
+      } else if (this.gameMode === 'online' && this.player1) {
         this.updateOnlineGame(dt);
       } else if (this.gameMode === 'local' && this.player1 && this.player2) {
         this.updateLocalGame(dt);
@@ -317,6 +328,9 @@ export class GameApp {
 
       // Render Scene
       this.sceneManager.render();
+
+      // Update Performance Stats
+      this.ui.updatePerformanceStats(this.sceneManager.getPerformanceStats());
     };
 
     requestAnimationFrame(loop);
@@ -333,8 +347,8 @@ export class GameApp {
       this.network.sendAbility(type, pos);
     });
 
-    // Update Camera
-    this.cameraController.updateSolo(this.player1.position, input.cameraDeltaX, input.cameraDeltaY, dt);
+    // Update Camera with sprint FOV kick
+    this.cameraController.updateSolo(this.player1.position, input.cameraDeltaX, input.cameraDeltaY, dt, input.sprint);
 
     // Update Remote Player
     if (this.remotePlayer) {
